@@ -1,0 +1,1025 @@
+/*
+ * Menu screens: main menu, new game setup, card gallery and "How to play".
+ * Builds on the looked-up colours of app.css (-gw-gold, -gw-text, ...).
+ * Class prefixes: menu- (shared by the menu screens), mm- (main menu), ng- (new game), gallery- and rules-.
+ */
+
+/* ================================================================ shared */
+
+/* thin double gold frame drawn just inside the edge of every menu screen */
+.menu-frame {
+    -fx-border-color: rgba(138, 109, 47, 0.55), rgba(138, 109, 47, 0.22);
+    -fx-border-width: 1.5, 1;
+    -fx-border-insets: 10, 16;
+}
+
+.menu-page {
+    -fx-padding: 26 56 26 56;
+    -fx-spacing: 16;
+}
+
+.menu-header {
+    -fx-spacing: 24;
+    -fx-alignment: baseline-left;
+}
+
+.menu-page-title {
+    -fx-font-size: 44px;
+}
+
+.menu-page-subtitle {
+    -fx-font-size: 20px;
+    -fx-font-style: italic;
+    -fx-text-fill: -gw-text-dim;
+}
+
+.menu-back {
+    -fx-font-size: 20px;
+    -fx-padding: 8 26 8 26;
+}
+
+/* the scroll panes of the gallery and the rules */
+.menu-scroll .scroll-bar:vertical {
+    -fx-pref-width: 12;
+    -fx-padding: 2;
+}
+
+.menu-scroll .scroll-bar .track {
+    -fx-background-color: rgba(0, 0, 0, 0.25);
+    -fx-background-radius: 4;
+}
+
+.menu-scroll .scroll-bar .thumb:hover {
+    -fx-background-color: -gw-gold;
+}
+
+/* ---------------------------------------------------------------- segmented options (new game) */
+
+.menu-options {
+    -fx-spacing: 0;
+    -fx-alignment: center-left;
+}
+
+.menu-option {
+    -fx-background-color: linear-gradient(to bottom, #3b2b1c, #21170f);
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+    -fx-border-color: -gw-gold-dark;
+    -fx-border-width: 1 0 1 1;
+    -fx-text-fill: -gw-text;
+    -fx-font-size: 18px;
+    -fx-padding: 7 14 7 14;
+    -fx-cursor: hand;
+}
+
+.menu-option-first {
+    -fx-background-radius: 6 0 0 6;
+    -fx-border-radius: 6 0 0 6;
+}
+
+.menu-option-last {
+    -fx-border-width: 1;
+    -fx-background-radius: 0 6 6 0;
+    -fx-border-radius: 0 6 6 0;
+}
+
+.menu-option-first.menu-option-last {
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+}
+
+.menu-option:hover {
+    -fx-background-color: linear-gradient(to bottom, #56412a, #2c2016);
+    -fx-text-fill: -gw-gold-bright;
+}
+
+.menu-option:selected {
+    -fx-background-color: linear-gradient(to bottom, #d0a955, #8c6b2d);
+    -fx-text-fill: #1b130b;
+}
+
+/* ---------------------------------------------------------------- card tiles (gallery, leader choice) */
+
+.menu-tile {
+    -fx-padding: 4;
+    -fx-spacing: 4;
+    -fx-alignment: top-center;
+    -fx-background-color: transparent;
+    -fx-background-radius: 10;
+    -fx-border-color: transparent;
+    -fx-border-width: 2;
+    -fx-border-radius: 10;
+    -fx-cursor: hand;
+}
+
+.menu-tile:hover {
+    -fx-background-color: rgba(212, 175, 90, 0.12);
+    -fx-border-color: -gw-gold-dark;
+}
+
+.menu-tile:selected {
+    -fx-background-color: rgba(212, 175, 90, 0.24);
+    -fx-border-color: -gw-gold-bright;
+    -fx-effect: dropshadow(gaussian, rgba(243, 214, 144, 0.55), 18, 0.3, 0, 0);
+}
+
+.menu-tile-caption {
+    -fx-font-size: 17px;
+    -fx-text-fill: -gw-text;
+    -fx-alignment: center;
+    -fx-text-alignment: center;
+}
+
+.menu-tile-detail {
+    -fx-font-size: 16px;
+    -fx-text-fill: -gw-text-dim;
+    -fx-alignment: center;
+    -fx-text-alignment: center;
+}
+
+.menu-tile:selected .menu-tile-caption {
+    -fx-text-fill: -gw-gold-bright;
+}
+
+.menu-caption-copies {
+    -fx-font-weight: bold;
+}
+
+.menu-caption-hero {
+    -fx-text-fill: -gw-gold-bright;
+    -fx-font-weight: bold;
+}
+
+.menu-caption-token {
+    -fx-text-fill: #bed3ec;
+    -fx-font-style: italic;
+}
+
+/* ---------------------------------------------------------------- faction colours */
+
+.menu-faction-band {
+    -fx-min-height: 7;
+    -fx-pref-height: 7;
+    -fx-max-height: 7;
+    -fx-background-radius: 8 8 0 0;
+}
+
+.menu-faction-northern-realms .menu-faction-band {
+    -fx-background-color: linear-gradient(to right, #162d4d, #7aa6dc, #162d4d);
+}
+
+.menu-faction-nilfgaard .menu-faction-band {
+    -fx-background-color: linear-gradient(to right, #121110, #d9b24c, #121110);
+}
+
+.menu-faction-scoiatael .menu-faction-band {
+    -fx-background-color: linear-gradient(to right, #1b3a17, #88bd6a, #1b3a17);
+}
+
+.menu-faction-monsters .menu-faction-band {
+    -fx-background-color: linear-gradient(to right, #3a0f0d, #c25546, #3a0f0d);
+}
+
+.menu-faction-skellige .menu-faction-band {
+    -fx-background-color: linear-gradient(to right, #2a1a3b, #9a7cc0, #2a1a3b);
+}
+
+.menu-faction-neutral .menu-faction-band {
+    -fx-background-color: linear-gradient(to right, #33291b, #b29468, #33291b);
+}
+
+/* ================================================================ main menu */
+
+.mm-menu {
+    -fx-min-width: 840;
+    -fx-pref-width: 840;
+    -fx-max-width: 840;
+    -fx-spacing: 8;
+    -fx-alignment: center;
+    -fx-padding: 0 0 30 80;
+}
+
+.mm-title {
+    -fx-font-size: 168px;
+    -fx-text-fill: linear-gradient(to bottom, #fbe9b7 0%, #e3bd62 48%, #9a782f 100%);
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.95), 26, 0.45, 0, 6);
+}
+
+.mm-subtitle {
+    -fx-font-size: 27px;
+    -fx-font-style: italic;
+    -fx-text-fill: -gw-text;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.9), 6, 0.4, 0, 1);
+}
+
+.mm-separator {
+    -fx-pref-width: 560;
+    -fx-max-width: 560;
+}
+
+.mm-buttons {
+    -fx-spacing: 16;
+    -fx-alignment: center;
+    -fx-padding: 34 0 0 0;
+}
+
+.mm-button {
+    -fx-pref-width: 400;
+    -fx-font-size: 27px;
+    -fx-padding: 13 30 13 30;
+}
+
+.mm-fan-glow {
+    -fx-background-color: radial-gradient(center 50% 50%, radius 50%, rgba(212, 175, 90, 0.20) 0%, rgba(212, 175, 90, 0.06) 55%, transparent 100%);
+}
+
+.mm-fan-slot {
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.8), 28, 0.25, 0, 10);
+}
+
+.mm-fan-slot:hover {
+    -fx-view-order: -1;
+}
+
+.mm-fan-slot:hover .mm-fan-lift {
+    -fx-translate-y: -28;
+}
+
+.mm-footer {
+    -fx-font-size: 18.5px;
+    -fx-padding: 0 0 26 0;
+}
+
+/* ================================================================ new game */
+
+/* this screen uses larger type than the other menu screens */
+.ng-screen .menu-page-subtitle {
+    -fx-font-size: 22px;
+}
+
+.ng-screen .gw-subheading {
+    -fx-font-size: 30px;
+}
+
+.ng-screen .menu-back {
+    -fx-font-size: 22px;
+}
+
+.ng-screen .menu-option {
+    -fx-font-size: 22px;
+    -fx-padding: 7 16 7 16;
+}
+
+.ng-body {
+    -fx-spacing: 32;
+}
+
+.ng-main {
+    -fx-spacing: 18;
+}
+
+/* ---------------------------------------------------------------- your faction / your leader */
+
+.ng-picks {
+    -fx-spacing: 24;
+}
+
+/* both groups start from the same width and share the rest equally */
+.ng-pick-group {
+    -fx-min-width: 560;
+    -fx-pref-width: 560;
+    -fx-spacing: 10;
+}
+
+/* matches the button and the drop-down entries (the popup's styleable parent is the combo box) */
+.ng-pick-combo .list-cell {
+    -fx-font-size: 26px;
+    -fx-padding: 5 12 5 12;
+    -fx-graphic-text-gap: 12;
+}
+
+.ng-combo-random {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -gw-gold-bright;
+}
+
+.ng-pick-tile {
+    -fx-background-color: linear-gradient(to bottom, rgba(58, 43, 28, 0.95), rgba(20, 14, 10, 0.95));
+    -fx-background-radius: 10;
+    -fx-border-color: -gw-gold-dark;
+    -fx-border-width: 2;
+    -fx-border-radius: 10;
+    -fx-cursor: hand;
+}
+
+.ng-pick-tile:hover {
+    -fx-border-color: -gw-gold;
+    -fx-effect: dropshadow(gaussian, rgba(212, 175, 90, 0.35), 16, 0.2, 0, 0);
+}
+
+.ng-pick-content {
+    -fx-padding: 18 22 18 18;
+    -fx-spacing: 26;
+    -fx-alignment: center-left;
+}
+
+.ng-pick-texts {
+    -fx-spacing: 8;
+    -fx-alignment: center-left;
+}
+
+.ng-pick-name {
+    -fx-font-size: 34px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -gw-gold-bright;
+}
+
+.ng-pick-caption {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -gw-gold;
+}
+
+.ng-pick-text {
+    -fx-font-size: 24px;
+    -fx-text-fill: -gw-text;
+}
+
+.ng-pick-detail {
+    -fx-font-size: 20px;
+    -fx-font-style: italic;
+    -fx-text-fill: -gw-text-dim;
+    -fx-padding: 4 0 0 0;
+}
+
+.ng-random-badge {
+    -fx-min-width: 130;
+    -fx-min-height: 130;
+    -fx-max-width: 130;
+    -fx-max-height: 130;
+    -fx-background-color: rgba(12, 8, 5, 0.78);
+    -fx-background-radius: 65;
+    -fx-border-color: -gw-gold;
+    -fx-border-width: 2;
+    -fx-border-radius: 65;
+}
+
+.ng-random-mark {
+    -fx-font-size: 90px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -gw-gold-bright;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.95), 12, 0.5, 0, 2);
+}
+
+/* ---------------------------------------------------------------- opponent and rules */
+
+.ng-settings {
+    -fx-spacing: 24;
+}
+
+/* both panels start from the same width and share the rest equally */
+.ng-panel {
+    -fx-min-width: 560;
+    -fx-pref-width: 560;
+    -fx-padding: 16 22 18 22;
+    -fx-spacing: 12;
+}
+
+.ng-grid {
+    -fx-hgap: 18;
+    -fx-vgap: 12;
+}
+
+.ng-field-label {
+    -fx-font-size: 22px;
+    -fx-text-fill: -gw-text-dim;
+}
+
+.ng-combo .list-cell {
+    -fx-font-size: 22px;
+    -fx-padding: 3 10 3 10;
+    -fx-graphic-text-gap: 10;
+}
+
+.ng-combo:disabled {
+    -fx-opacity: 0.6;
+}
+
+.ng-note {
+    -fx-font-size: 20px;
+    -fx-text-fill: -gw-text-dim;
+}
+
+/* ---------------------------------------------------------------- leader details (right column) */
+
+.ng-side {
+    -fx-min-width: 420;
+    -fx-pref-width: 420;
+    -fx-max-width: 420;
+    -fx-spacing: 10;
+}
+
+/* a panel like gw-panel, but without its drop shadow: the scroll pane would cut that off at its edges */
+.ng-details {
+    -fx-background-color: -gw-panel;
+    -fx-background-radius: 10;
+    -fx-border-color: -gw-panel-border;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 10;
+    -fx-padding: 16 20 20 20;
+    -fx-spacing: 10;
+}
+
+.ng-details-name {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -gw-gold-bright;
+}
+
+.ng-details-kind {
+    -fx-font-size: 21px;
+    -fx-font-style: italic;
+    -fx-text-fill: -gw-text;
+}
+
+.ng-details-faction {
+    -fx-font-size: 20px;
+    -fx-text-fill: -gw-text-dim;
+}
+
+.ng-details-ability {
+    -fx-font-size: 24px;
+    -fx-text-fill: -gw-text;
+}
+
+.ng-details-title {
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -gw-gold-bright;
+}
+
+.ng-details-entry {
+    -fx-spacing: 3;
+    -fx-padding: 6 0 0 0;
+}
+
+.ng-details-entry-name {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -gw-gold;
+}
+
+.ng-details-entry-text {
+    -fx-font-size: 20px;
+    -fx-text-fill: -gw-text;
+}
+
+/* ---------------------------------------------------------------- bottom bar */
+
+.ng-bar {
+    -fx-spacing: 26;
+    -fx-alignment: center-left;
+}
+
+.ng-summary {
+    -fx-font-size: 20px;
+    -fx-text-fill: -gw-text-dim;
+}
+
+.ng-start {
+    -fx-font-size: 28px;
+    -fx-padding: 11 46 11 46;
+}
+
+/* ================================================================ card gallery */
+
+.gallery-body {
+    -fx-spacing: 26;
+}
+
+.gallery-center {
+    -fx-spacing: 0;
+}
+
+.gallery-tabs {
+    -fx-spacing: 6;
+    -fx-alignment: bottom-left;
+}
+
+.gallery-tab {
+    -fx-background-color: linear-gradient(to bottom, #33261a, #1d150e);
+    -fx-background-insets: 0;
+    -fx-background-radius: 9 9 0 0;
+    -fx-border-color: -gw-panel-border;
+    -fx-border-width: 1.5 1.5 0 1.5;
+    -fx-border-radius: 9 9 0 0;
+    -fx-text-fill: -gw-text-dim;
+    -fx-font-size: 21px;
+    -fx-padding: 9 22 9 14;
+    -fx-graphic-text-gap: 10;
+    -fx-cursor: hand;
+}
+
+.gallery-tab:hover {
+    -fx-background-color: linear-gradient(to bottom, #47341f, #241a11);
+    -fx-text-fill: -gw-gold-bright;
+}
+
+.gallery-tab:selected {
+    -fx-background-color: linear-gradient(to bottom, #5e442a, #2a1d13);
+    -fx-border-color: -gw-gold;
+    -fx-text-fill: -gw-gold-bright;
+}
+
+.gallery-frame {
+    -fx-background-color: -gw-panel;
+    -fx-background-radius: 0 10 10 10;
+    -fx-border-color: -gw-gold-dark;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 0 10 10 10;
+    -fx-padding: 6 4 6 4;
+}
+
+.gallery-page {
+    -fx-padding: 14 12 30 14;
+    -fx-spacing: 22;
+}
+
+.gallery-banner {
+    -fx-spacing: 22;
+    -fx-alignment: center-left;
+    -fx-padding: 14 22 14 18;
+    -fx-background-color: linear-gradient(to right, rgba(212, 175, 90, 0.18), rgba(212, 175, 90, 0.0));
+    -fx-background-radius: 10;
+}
+
+.gallery-banner-texts {
+    -fx-spacing: 4;
+}
+
+.gallery-banner-title {
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -gw-gold;
+}
+
+.gallery-banner-text {
+    -fx-font-size: 20px;
+    -fx-text-fill: -gw-text;
+}
+
+.gallery-stats {
+    -fx-font-size: 18px;
+    -fx-text-fill: -gw-text-dim;
+}
+
+.gallery-section {
+    -fx-spacing: 10;
+}
+
+.gallery-section-head {
+    -fx-spacing: 12;
+    -fx-alignment: center-left;
+}
+
+.gallery-section-count {
+    -fx-font-size: 20px;
+    -fx-text-fill: -gw-text-dim;
+}
+
+.gallery-section-text {
+    -fx-font-size: 18px;
+    -fx-text-fill: -gw-text-dim;
+    -fx-font-style: italic;
+}
+
+.gallery-grid {
+    -fx-hgap: 10;
+    -fx-vgap: 14;
+    -fx-row-valignment: top;
+}
+
+.gallery-side {
+    -fx-min-width: 340;
+    -fx-pref-width: 340;
+    -fx-max-width: 340;
+    -fx-spacing: 10;
+    -fx-padding: 46 0 0 0;
+}
+
+.gallery-hint {
+    -fx-font-size: 18px;
+    -fx-text-fill: -gw-text-dim;
+}
+
+/* ================================================================ how to play */
+
+.rules-body {
+    -fx-spacing: 26;
+}
+
+.rules-toc {
+    -fx-min-width: 300;
+    -fx-pref-width: 300;
+    -fx-max-width: 300;
+    -fx-padding: 16 10 16 10;
+    -fx-spacing: 2;
+}
+
+.rules-toc-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -gw-gold;
+    -fx-padding: 0 0 8 14;
+}
+
+.rules-toc-entry {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-background-radius: 6;
+    -fx-border-color: transparent;
+    -fx-border-width: 0 0 0 3;
+    -fx-text-fill: -gw-text-dim;
+    -fx-font-size: 20px;
+    -fx-padding: 7 12 7 14;
+    -fx-alignment: center-left;
+    -fx-cursor: hand;
+}
+
+.rules-toc-entry:hover {
+    -fx-background-color: rgba(212, 175, 90, 0.08);
+    -fx-text-fill: -gw-gold-bright;
+}
+
+.rules-toc-entry:selected {
+    -fx-background-color: rgba(212, 175, 90, 0.16);
+    -fx-border-color: -gw-gold;
+    -fx-text-fill: -gw-gold-bright;
+}
+
+.rules-frame {
+    -fx-background-color: -gw-panel;
+    -fx-background-radius: 10;
+    -fx-border-color: -gw-gold-dark;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 10;
+    -fx-padding: 4;
+}
+
+.rules-content {
+    -fx-padding: 24 40 140 40;
+    -fx-spacing: 56;
+}
+
+.rules-section {
+    -fx-spacing: 16;
+}
+
+.rules-section-title {
+    -fx-font-size: 38px;
+}
+
+.rules-section-line {
+    -fx-pref-width: 1160;
+    -fx-max-width: 1160;
+}
+
+.rules-subtitle {
+    -fx-padding: 10 0 0 0;
+}
+
+.rules-text {
+    -fx-font-family: "Georgia";
+    -fx-font-size: 21px;
+    -fx-fill: -gw-text;
+}
+
+.rules-strong {
+    -fx-font-family: "Georgia";
+    -fx-font-size: 21px;
+    -fx-font-weight: bold;
+    -fx-fill: -gw-gold-bright;
+}
+
+.rules-tip {
+    -fx-font-family: "Georgia";
+    -fx-font-size: 19.5px;
+    -fx-font-style: italic;
+    -fx-fill: -gw-text-dim;
+}
+
+.rules-tip-strong {
+    -fx-font-family: "Georgia";
+    -fx-font-size: 19.5px;
+    -fx-font-style: italic;
+    -fx-font-weight: bold;
+    -fx-fill: -gw-gold;
+}
+
+.rules-flow {
+    -fx-line-spacing: 3;
+}
+
+.rules-callout {
+    -fx-background-color: linear-gradient(to right, rgba(212, 175, 90, 0.20), rgba(212, 175, 90, 0.05));
+    -fx-background-radius: 10;
+    -fx-border-color: -gw-gold-dark;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 10;
+    -fx-padding: 18 26 20 24;
+    -fx-spacing: 10;
+}
+
+.rules-callout-title {
+    -fx-font-size: 25px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -gw-gold-bright;
+}
+
+.rules-bullet {
+    -fx-spacing: 12;
+    -fx-alignment: baseline-left;
+}
+
+.rules-bullet-dot {
+    -fx-font-size: 21px;
+    -fx-text-fill: -gw-gold;
+}
+
+.rules-step {
+    -fx-spacing: 16;
+    -fx-alignment: baseline-left;
+}
+
+.rules-step-number {
+    -fx-min-width: 34;
+    -fx-min-height: 34;
+    -fx-max-width: 34;
+    -fx-max-height: 34;
+    -fx-alignment: center;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1b130b;
+    -fx-background-color: linear-gradient(to bottom, #e6c272, #a07c32);
+    -fx-background-radius: 17;
+}
+
+.rules-entry {
+    -fx-spacing: 18;
+    -fx-padding: 12 20 14 14;
+    -fx-alignment: top-left;
+    -fx-background-color: rgba(43, 32, 21, 0.75);
+    -fx-background-radius: 9;
+    -fx-border-color: rgba(138, 109, 47, 0.45);
+    -fx-border-radius: 9;
+}
+
+.rules-entry-icon {
+    -fx-background-color: radial-gradient(center 50% 40%, radius 70%, #4a3622, #160f09);
+    -fx-background-radius: 30;
+    -fx-border-color: -gw-gold-dark;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 30;
+}
+
+.rules-entry-text {
+    -fx-spacing: 5;
+}
+
+.rules-entry-head {
+    -fx-spacing: 12;
+    -fx-alignment: baseline-left;
+}
+
+.rules-entry-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -gw-gold-bright;
+}
+
+.rules-tag {
+    -fx-font-size: 16px;
+    -fx-text-fill: -gw-gold;
+    -fx-border-color: -gw-gold-dark;
+    -fx-border-radius: 9;
+    -fx-padding: 1 9 2 9;
+}
+
+.rules-examples {
+    -fx-spacing: 30;
+    -fx-alignment: top-left;
+    -fx-padding: 6 0 6 0;
+}
+
+.rules-example {
+    -fx-spacing: 6;
+    -fx-alignment: top-center;
+}
+
+.rules-example-caption {
+    -fx-font-size: 19.5px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -gw-gold-bright;
+}
+
+.rules-example-detail {
+    -fx-font-size: 17px;
+    -fx-text-fill: -gw-text-dim;
+}
+
+.rules-gems {
+    -fx-spacing: 46;
+    -fx-alignment: center-left;
+}
+
+.rules-gem-example {
+    -fx-spacing: 6;
+    -fx-alignment: center-left;
+}
+
+.rules-gem-text {
+    -fx-font-size: 18.5px;
+    -fx-text-fill: -gw-text-dim;
+    -fx-padding: 0 0 0 8;
+}
+
+.rules-controls {
+    -fx-spacing: 12;
+}
+
+.rules-control {
+    -fx-spacing: 20;
+    -fx-alignment: center-left;
+}
+
+.rules-key-box {
+    -fx-min-width: 300;
+    -fx-pref-width: 300;
+    -fx-max-width: 300;
+    -fx-alignment: center-right;
+}
+
+.rules-key {
+    -fx-font-size: 18.5px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -gw-gold-bright;
+    -fx-background-color: linear-gradient(to bottom, #4a3622, #21170f);
+    -fx-background-radius: 6;
+    -fx-border-color: -gw-gold-dark;
+    -fx-border-radius: 6;
+    -fx-padding: 6 14 6 14;
+}
+
+/* ---------------------------------------------------------------- battlefield diagram */
+
+.rules-board {
+    -fx-spacing: 18;
+    -fx-alignment: center-left;
+    -fx-padding: 18;
+    -fx-background-color: linear-gradient(to bottom, #2c2015, #1a120b);
+    -fx-background-radius: 12;
+    -fx-border-color: -gw-gold-dark;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 12;
+}
+
+.rules-board-side {
+    -fx-min-width: 190;
+    -fx-pref-width: 190;
+    -fx-max-width: 190;
+    -fx-spacing: 0;
+    -fx-alignment: center;
+}
+
+.rules-board-box {
+    -fx-padding: 10;
+    -fx-spacing: 5;
+    -fx-alignment: center;
+    -fx-background-color: rgba(0, 0, 0, 0.35);
+    -fx-background-radius: 8;
+    -fx-border-color: rgba(212, 175, 90, 0.5);
+    -fx-border-style: segments(6, 4);
+    -fx-border-radius: 8;
+}
+
+.rules-board-box-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -gw-gold-bright;
+}
+
+.rules-board-box-text {
+    -fx-font-size: 16px;
+    -fx-text-fill: -gw-text-dim;
+    -fx-text-alignment: center;
+}
+
+.rules-board-weather {
+    -fx-spacing: 6;
+    -fx-alignment: center;
+}
+
+.rules-board-rows {
+    -fx-min-width: 700;
+    -fx-pref-width: 700;
+    -fx-max-width: 700;
+    -fx-spacing: 6;
+}
+
+.rules-board-row {
+    -fx-spacing: 8;
+    -fx-alignment: center-left;
+}
+
+.rules-board-horn {
+    -fx-background-color: rgba(0, 0, 0, 0.35);
+    -fx-background-radius: 6;
+    -fx-border-color: rgba(212, 175, 90, 0.5);
+    -fx-border-style: segments(5, 4);
+    -fx-border-radius: 6;
+}
+
+.rules-board-strip {
+    -fx-min-height: 46;
+    -fx-pref-height: 46;
+    -fx-max-height: 46;
+    -fx-spacing: 12;
+    -fx-alignment: center-left;
+    -fx-padding: 0 10 0 10;
+    -fx-background-radius: 6;
+    -fx-border-width: 1;
+    -fx-border-radius: 6;
+}
+
+.rules-board-strip-enemy {
+    -fx-background-color: linear-gradient(to right, rgba(130, 42, 32, 0.40), rgba(60, 25, 20, 0.20));
+    -fx-border-color: rgba(200, 64, 47, 0.50);
+}
+
+.rules-board-strip-own {
+    -fx-background-color: linear-gradient(to right, rgba(42, 74, 128, 0.40), rgba(25, 35, 60, 0.20));
+    -fx-border-color: rgba(111, 168, 220, 0.50);
+}
+
+.rules-board-row-label {
+    -fx-font-size: 18.5px;
+    -fx-text-fill: -gw-text;
+}
+
+.rules-board-score {
+    -fx-min-width: 42;
+    -fx-min-height: 30;
+    -fx-alignment: center;
+    -fx-font-size: 19.5px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -gw-gold-bright;
+    -fx-background-color: #120d09;
+    -fx-background-radius: 15;
+    -fx-border-color: -gw-gold-dark;
+    -fx-border-radius: 15;
+}
+
+.rules-board-divider {
+    -fx-min-height: 3;
+    -fx-pref-height: 3;
+    -fx-max-height: 3;
+    -fx-background-color: linear-gradient(to right, transparent, -gw-gold, transparent);
+}
+
+.rules-board-totals {
+    -fx-min-width: 170;
+    -fx-pref-width: 170;
+    -fx-spacing: 0;
+    -fx-alignment: center;
+}
+
+.rules-board-total {
+    -fx-padding: 10 14 10 14;
+    -fx-spacing: 2;
+    -fx-alignment: center;
+    -fx-background-radius: 10;
+    -fx-border-width: 2;
+    -fx-border-radius: 10;
+}
+
+.rules-board-total-enemy {
+    -fx-background-color: rgba(130, 42, 32, 0.35);
+    -fx-border-color: rgba(200, 64, 47, 0.80);
+}
+
+.rules-board-total-own {
+    -fx-background-color: rgba(42, 74, 128, 0.35);
+    -fx-border-color: rgba(111, 168, 220, 0.80);
+}
+
+.rules-board-total-value {
+    -fx-font-size: 36px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -gw-gold-bright;
+}
+
+.rules-board-total-label {
+    -fx-font-size: 17px;
+    -fx-text-fill: -gw-text-dim;
+}

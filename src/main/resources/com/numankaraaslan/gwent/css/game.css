@@ -1,0 +1,556 @@
+/*
+ * Game board screen (com.numankaraaslan.gwent.ui.game). Every class is prefixed with "gm-" so it never collides with the other
+ * sheets. Colours use the looked-up colours of app.css (-gw-gold, -gw-text, ...).
+ */
+
+/* ---------------------------------------------------------------- screen & surfaces */
+
+.gm-game-screen {
+    -fx-background-color: radial-gradient(center 50% 42%, radius 85%, #3b2a1a 0%, #1e150e 58%, #0b0806 100%);
+}
+
+.gm-side-column {
+    -fx-background-color: linear-gradient(to right, rgba(9, 6, 4, 0.92), rgba(24, 17, 11, 0.82));
+    -fx-border-color: rgba(138, 109, 47, 0.5);
+    -fx-border-width: 0 2 0 0;
+}
+
+.gm-side-column-right {
+    -fx-background-color: linear-gradient(to left, rgba(9, 6, 4, 0.92), rgba(24, 17, 11, 0.82));
+    -fx-border-width: 0 0 0 2;
+}
+
+.gm-board-surface {
+    -fx-background-color: linear-gradient(to bottom, #35261a, #2a1d13);
+}
+
+.gm-board-surface-enemy {
+    -fx-background-color: linear-gradient(to bottom, #241811, #3a2819);
+}
+
+.gm-board-surface-own {
+    -fx-background-color: linear-gradient(to bottom, #3a2819, #241811);
+}
+
+.gm-board-divider {
+    -fx-background-color: linear-gradient(to right, transparent, -gw-gold, transparent);
+}
+
+.gm-hand-tray {
+    -fx-background-color: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.78));
+    -fx-border-color: rgba(138, 109, 47, 0.65);
+    -fx-border-width: 2 0 0 0;
+}
+
+.gm-hint-label {
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -gw-gold-bright;
+    -fx-background-color: rgba(12, 8, 5, 0.92);
+    -fx-background-radius: 18;
+    -fx-border-color: -gw-gold-dark;
+    -fx-border-radius: 18;
+    -fx-padding: 3 24 3 24;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.85), 8, 0.3, 0, 1);
+}
+
+.gm-round-label {
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -gw-gold;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.85), 8, 0.3, 0, 2);
+}
+
+.gm-round-subtitle {
+    -fx-font-size: 20px;
+    -fx-text-fill: -gw-text;
+}
+
+/* ---------------------------------------------------------------- rows */
+
+.gm-row-view {
+    -fx-background-color: rgba(0, 0, 0, 0.16);
+    -fx-background-radius: 8;
+}
+
+.gm-row-view:target {
+    -fx-background-color: rgba(243, 214, 144, 0.10);
+    -fx-cursor: hand;
+}
+
+.gm-row-cards {
+    -fx-background-color: linear-gradient(to bottom, rgba(0, 0, 0, 0.36), rgba(0, 0, 0, 0.22));
+    -fx-background-radius: 6;
+    -fx-border-color: rgba(212, 175, 90, 0.22);
+    -fx-border-radius: 6;
+    -fx-border-width: 1;
+}
+
+.gm-row-cards:horn {
+    -fx-background-color: linear-gradient(to bottom, rgba(212, 175, 90, 0.22), rgba(60, 40, 10, 0.30));
+    -fx-border-color: rgba(243, 214, 144, 0.8);
+    -fx-border-width: 1.5;
+}
+
+.gm-row-cards:mardroeme {
+    -fx-background-color: linear-gradient(to bottom, rgba(79, 191, 85, 0.20), rgba(10, 40, 12, 0.30));
+    -fx-border-color: rgba(120, 220, 120, 0.7);
+    -fx-border-width: 1.5;
+}
+
+.gm-row-cards:target {
+    -fx-border-color: -gw-gold-bright;
+    -fx-border-width: 2.5;
+    -fx-background-color: linear-gradient(to bottom, rgba(243, 214, 144, 0.22), rgba(243, 214, 144, 0.08));
+    -fx-effect: dropshadow(gaussian, rgba(243, 214, 144, 0.75), 18, 0.35, 0, 0);
+}
+
+.gm-row-score {
+    -fx-background-color: radial-gradient(center 50% 38%, radius 70%, #4d3720, #1a120b);
+    -fx-background-radius: 26;
+    -fx-border-color: -gw-gold-dark;
+    -fx-border-width: 2;
+    -fx-border-radius: 26;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.7), 6, 0.3, 0, 1);
+}
+
+.gm-row-view:horn .gm-row-score {
+    -fx-border-color: -gw-gold-bright;
+}
+
+/* Palatino has lining figures: Georgia's old-style digits sit low and look off-centre in the round badges */
+.gm-row-score-label {
+    -fx-font-family: "Palatino Linotype";
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -gw-text;
+}
+
+.gm-special-slot {
+    -fx-background-color: rgba(0, 0, 0, 0.30);
+    -fx-background-radius: 6;
+    -fx-border-color: rgba(212, 175, 90, 0.32);
+    -fx-border-style: segments(5, 4);
+    -fx-border-radius: 6;
+}
+
+.gm-special-slot:target {
+    -fx-background-color: rgba(243, 214, 144, 0.16);
+    -fx-border-color: -gw-gold-bright;
+    -fx-border-style: solid;
+    -fx-border-width: 2.5;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(243, 214, 144, 0.85), 14, 0.35, 0, 0);
+}
+
+.gm-leader-horn {
+    -fx-background-color: radial-gradient(center 50% 50%, radius 60%, rgba(243, 214, 144, 0.38), transparent);
+}
+
+.gm-row-icon {
+    -fx-opacity: 0.6;
+}
+
+/* ---------------------------------------------------------------- weather on rows */
+
+.gm-weather-frost {
+    -fx-background-color: linear-gradient(to bottom, rgba(175, 218, 255, 0.40), rgba(120, 175, 235, 0.28));
+    -fx-background-radius: 6;
+    -fx-border-color: rgba(222, 240, 255, 0.85);
+    -fx-border-radius: 6;
+    -fx-border-width: 1.5;
+}
+
+.gm-weather-fog {
+    -fx-background-color: rgba(155, 155, 160, 0.40);
+    -fx-background-radius: 6;
+}
+
+.gm-weather-rain {
+    -fx-background-color: linear-gradient(to bottom, rgba(20, 42, 98, 0.46), rgba(10, 26, 72, 0.36));
+    -fx-background-radius: 6;
+}
+
+.gm-snowflake {
+    -fx-stroke: rgba(242, 249, 255, 0.9);
+    -fx-stroke-width: 1.6;
+    -fx-stroke-line-cap: round;
+}
+
+.gm-fog-puff {
+    -fx-fill: rgba(228, 228, 232, 0.30);
+}
+
+.gm-rain-streak {
+    -fx-stroke: rgba(175, 205, 255, 0.42);
+    -fx-stroke-width: 1.4;
+}
+
+/* ---------------------------------------------------------------- player panels */
+
+.gm-panel-enemy {
+    -fx-background-color: linear-gradient(to bottom, rgba(44, 20, 15, 0.93), rgba(24, 17, 12, 0.93));
+}
+
+.gm-panel-own {
+    -fx-background-color: linear-gradient(to bottom, rgba(24, 17, 12, 0.93), rgba(17, 24, 30, 0.93));
+}
+
+.gm-player-panel:turn {
+    -fx-border-color: -gw-gold-bright;
+    -fx-border-width: 2.5;
+    -fx-effect: dropshadow(gaussian, rgba(243, 214, 144, 0.7), 24, 0.35, 0, 0);
+}
+
+.gm-panel-name {
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -gw-gold-bright;
+}
+
+.gm-panel-faction {
+    -fx-font-size: 22px;
+    -fx-text-fill: -gw-text;
+}
+
+.gm-panel-count {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -gw-text;
+}
+
+.gm-score-badge {
+    -fx-background-color: radial-gradient(center 50% 35%, radius 75%, #5a4127, #1c130c);
+    -fx-background-radius: 36;
+    -fx-border-color: -gw-gold-dark;
+    -fx-border-width: 3;
+    -fx-border-radius: 36;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.7), 8, 0.3, 0, 2);
+}
+
+.gm-score-badge:ahead {
+    -fx-background-color: radial-gradient(center 50% 35%, radius 75%, #c39443, #4a3216);
+    -fx-border-color: -gw-gold-bright;
+    -fx-effect: dropshadow(gaussian, rgba(243, 214, 144, 0.9), 22, 0.45, 0, 0);
+}
+
+.gm-score-label {
+    -fx-font-family: "Palatino Linotype";
+    -fx-font-size: 42px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ffffff;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.8), 4, 0.4, 0, 1);
+}
+
+/* three-digit scores */
+.gm-score-label:long {
+    -fx-font-size: 33px;
+}
+
+.gm-passed-stamp {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ffe2da;
+    -fx-background-color: rgba(150, 32, 22, 0.9);
+    -fx-background-radius: 4;
+    -fx-border-color: #ffb3a6;
+    -fx-border-width: 2;
+    -fx-border-radius: 4;
+    -fx-padding: 2 16 2 16;
+    -fx-translate-y: 12;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.9), 10, 0.4, 0, 2);
+}
+
+.gm-thinking-label {
+    -fx-font-size: 18px;
+    -fx-font-style: italic;
+    -fx-text-fill: -gw-gold-bright;
+    -fx-background-color: rgba(0, 0, 0, 0.8);
+    -fx-background-radius: 10;
+    -fx-padding: 3 12 3 12;
+    -fx-translate-y: -8;
+}
+
+/* ---------------------------------------------------------------- weather zone */
+
+.gm-weather-zone {
+    -fx-padding: 8 12 8 12;
+}
+
+.gm-weather-zone:target {
+    -fx-border-color: -gw-gold-bright;
+    -fx-border-width: 2.5;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(169, 212, 255, 0.9), 24, 0.4, 0, 0);
+}
+
+.gm-weather-cards {
+    -fx-background-color: rgba(0, 0, 0, 0.3);
+    -fx-background-radius: 6;
+}
+
+.gm-zone-caption {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -gw-gold;
+}
+
+.gm-zone-empty {
+    -fx-font-size: 20px;
+    -fx-font-style: italic;
+    -fx-text-fill: -gw-text;
+}
+
+/* ---------------------------------------------------------------- decks & discard piles */
+
+.gm-pile-caption {
+    -fx-font-size: 17px;
+    -fx-text-fill: -gw-text-dim;
+}
+
+.gm-pile-slot {
+    -fx-background-color: rgba(0, 0, 0, 0.35);
+    -fx-background-radius: 6;
+    -fx-border-color: rgba(212, 175, 90, 0.3);
+    -fx-border-radius: 6;
+}
+
+.gm-discard-slot {
+    -fx-cursor: hand;
+}
+
+.gm-discard-slot:hover {
+    -fx-border-color: -gw-gold-bright;
+    -fx-effect: dropshadow(gaussian, rgba(243, 214, 144, 0.6), 12, 0.3, 0, 0);
+}
+
+.gm-pile-count {
+    -fx-font-size: 18.5px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ffffff;
+    -fx-background-color: rgba(0, 0, 0, 0.82);
+    -fx-background-radius: 10;
+    -fx-border-color: -gw-gold-dark;
+    -fx-border-radius: 10;
+    -fx-padding: 1 9 1 9;
+    -fx-translate-y: 10;
+}
+
+.gm-pile-empty {
+    -fx-font-size: 16px;
+    -fx-text-fill: -gw-text-dim;
+}
+
+/* ---------------------------------------------------------------- hand */
+
+.gm-hand-view:inactive {
+    -fx-opacity: 0.84;
+}
+
+.gm-hand-slot {
+    -fx-cursor: hand;
+}
+
+/* ---------------------------------------------------------------- buttons & log */
+
+.gm-pass-button {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+}
+
+.gm-menu-button {
+    -fx-font-size: 19.5px;
+    -fx-padding: 6 18 6 18;
+}
+
+.gm-game-log {
+    -fx-padding: 8 10 8 10;
+}
+
+.gm-game-log-entry {
+    -fx-font-size: 17px;
+}
+
+.gm-log-own {
+    -fx-text-fill: #fff3d4;
+}
+
+.gm-log-enemy {
+    -fx-text-fill: #ffcdbf;
+}
+
+.gm-log-neutral {
+    -fx-text-fill: -gw-text;
+}
+
+/* ---------------------------------------------------------------- banners & toasts */
+
+.gm-banner {
+    -fx-background-color: linear-gradient(to right, transparent 0%, rgba(10, 7, 4, 0.93) 16%, rgba(10, 7, 4, 0.93) 84%, transparent 100%);
+    -fx-border-color: linear-gradient(to right, transparent, -gw-gold, transparent);
+    -fx-border-width: 2 0 2 0;
+    -fx-padding: 14 60 14 60;
+}
+
+.gm-banner-title {
+    -fx-font-size: 48px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -gw-gold-bright;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.9), 10, 0.4, 0, 2);
+}
+
+.gm-banner-subtitle {
+    -fx-font-size: 22px;
+    -fx-text-fill: -gw-text;
+    -fx-text-alignment: center;
+}
+
+.gm-banner-round .gm-banner-title {
+    -fx-font-size: 60px;
+}
+
+.gm-banner-win .gm-banner-title {
+    -fx-text-fill: #ffe9a8;
+}
+
+.gm-banner-loss .gm-banner-title {
+    -fx-text-fill: #ff9d87;
+}
+
+.gm-banner-draw .gm-banner-title {
+    -fx-text-fill: -gw-text;
+}
+
+.gm-banner-pass .gm-banner-title {
+    -fx-font-size: 42px;
+}
+
+.gm-banner-leader-enemy .gm-banner-title {
+    -fx-text-fill: #ffbca9;
+}
+
+.gm-toast {
+    -fx-font-size: 19.5px;
+    -fx-text-fill: -gw-text;
+    -fx-text-alignment: center;
+    -fx-background-color: rgba(14, 10, 6, 0.92);
+    -fx-background-radius: 8;
+    -fx-border-color: -gw-gold-dark;
+    -fx-border-radius: 8;
+    -fx-padding: 8 18 8 18;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.8), 10, 0.3, 0, 2);
+}
+
+.gm-toast-turn {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -gw-gold-bright;
+    -fx-border-color: -gw-gold-bright;
+}
+
+.gm-toast-warning {
+    -fx-text-fill: #ffc6ba;
+    -fx-border-color: -gw-red;
+}
+
+.gm-toast-faction {
+    -fx-text-fill: -gw-gold-bright;
+    -fx-border-color: -gw-gold;
+}
+
+/* ---------------------------------------------------------------- overlays & dialogs */
+
+.gm-game-veil {
+    -fx-background-color: rgba(0, 0, 0, 0.66);
+}
+
+.gm-game-dialog {
+    -fx-padding: 28 44 28 44;
+    -fx-min-width: 520;
+}
+
+.gm-dialog-text {
+    -fx-font-size: 24px;
+    -fx-text-fill: -gw-text;
+}
+
+.gm-redraw-dialog {
+    -fx-padding: 22 36 26 36;
+}
+
+.gm-choice-card {
+    -fx-background-color: transparent;
+    -fx-background-insets: -5;
+    -fx-background-radius: 10;
+    -fx-border-color: transparent;
+    -fx-border-insets: -5;
+    -fx-border-radius: 10;
+    -fx-border-width: 2;
+}
+
+.gm-choice-card:pickable {
+    -fx-cursor: hand;
+}
+
+.gm-choice-card:pickable:hover {
+    -fx-border-color: -gw-gold;
+    -fx-effect: dropshadow(gaussian, rgba(243, 214, 144, 0.6), 16, 0.3, 0, 0);
+}
+
+.gm-choice-card:chosen {
+    -fx-border-color: -gw-gold-bright;
+    -fx-border-width: 3;
+    -fx-effect: dropshadow(gaussian, rgba(243, 214, 144, 0.9), 22, 0.45, 0, 0);
+}
+
+/* ---------------------------------------------------------------- game over */
+
+.gm-game-over-dialog {
+    -fx-padding: 36 60 36 60;
+}
+
+.gm-result-title {
+    -fx-font-size: 84px;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.9), 18, 0.4, 0, 4);
+}
+
+.gm-result-victory {
+    -fx-text-fill: -gw-gold-bright;
+}
+
+.gm-result-defeat {
+    -fx-text-fill: #e0644f;
+}
+
+.gm-result-draw {
+    -fx-text-fill: -gw-text;
+}
+
+.gm-result-table {
+    -fx-background-color: rgba(0, 0, 0, 0.32);
+    -fx-background-radius: 8;
+    -fx-padding: 8 6 10 6;
+}
+
+.gm-result-header {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -gw-gold;
+    -fx-padding: 6 12 9 12;
+    -fx-border-color: -gw-gold-dark;
+    -fx-border-width: 0 0 1 0;
+}
+
+.gm-result-cell {
+    -fx-font-size: 28px;
+    -fx-text-fill: -gw-text;
+    -fx-padding: 7 12 7 12;
+}
+
+.gm-result-cell-win {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -gw-gold-bright;
+    -fx-padding: 7 12 7 12;
+}

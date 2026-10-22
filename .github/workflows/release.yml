@@ -1,0 +1,170 @@
+name: Build & Release
+
+# Push a version tag (e.g.  git tag v1.0.0 && git push origin v1.0.0) and this
+# builds portable, no-install apps on real Windows, macOS and Linux machines
+# (free for public repos) and attaches them to a GitHub Release.
+#
+# Everything is an "app-image": a self-contained folder you unzip and run.
+# No installers -> no admin prompts, no WiX, no "did it install correctly?" nags.
+#
+# The jar is built separately on each OS, so each one picks up its own JavaFX
+# natives. The Java runtime is bundled, so players don't need Java installed.
+#
+# The app icon comes from two committed files: the JPG (also the window icon in
+# the game) is converted to .icns on macOS and to a PNG on Linux, and the .ico
+# is used on Windows.
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash      # one shell on all OSes keeps the script identical
+
+jobs:
+  build:
+    name: Build (${{ matrix.label }})
+    strategy:
+      fail-fast: false           # if one target fails, the others still finish
+      matrix:
+        include:
+          - os: windows-latest   # Windows
+            label: windows-x64
+          - os: macos-latest     # Mac, Apple Silicon (M1/M2/M3+)
+            label: macos-arm64
+          - os: ubuntu-latest    # Linux
+            label: linux-x64
+    runs-on: ${{ matrix.os }}
+    env:
+      LABEL: ${{ matrix.label }}
+      ICON_SRC: src/main/resources/com/numankaraaslan/gwent/images/gwentfx-icon.jpg
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+
+      - name: Determine version
+        run: |
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then
+            VERSION="${GITHUB_REF_NAME#v}"    # v1.0.0 -> 1.0.0
+          else
+            VERSION="$(mvn -q -B help:evaluate -Dexpression=project.version -DforceStdout)"   # manual test runs
+          fi
+          # jpackage only takes plain numbers (1.2.3), so a tag like v1.2.0-beta1 keeps
+          # its suffix in the file names but not in the app metadata.
+          APP_VERSION="${VERSION%%-*}"
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "APP_VERSION=$APP_VERSION" >> "$GITHUB_ENV"
+          echo "Building GwentFX $VERSION for $LABEL"
+
+      - name: Build shaded JAR
+        run: mvn -B clean package -DskipTests
+
+      - name: Stage jar for jpackage
+        run: |
+          mkdir -p staging app dist
+          cp target/GwentFX.jar staging/
+
+      # ---- Pick (or make) the icon format each OS wants ----
+      - name: Prepare icon (Windows -> .ico)
+        if: runner.os == 'Windows'
+        run: echo "ICON=packaging/gwentfx-icon.ico" >> "$GITHUB_ENV"
+
+      - name: Prepare icon (macOS -> .icns)
+        if: runner.os == 'macOS'
+        run: |
+          SET="gwentfx.iconset"
+          mkdir -p "$SET"
+          sips -s format png -z 16 16   "$ICON_SRC" --out "$SET/icon_16x16.png"
+          sips -s format png -z 32 32   "$ICON_SRC" --out "$SET/icon_16x16@2x.png"
+          sips -s format png -z 32 32   "$ICON_SRC" --out "$SET/icon_32x32.png"
+          sips -s format png -z 64 64   "$ICON_SRC" --out "$SET/icon_32x32@2x.png"
+          sips -s format png -z 128 128 "$ICON_SRC" --out "$SET/icon_128x128.png"
+          sips -s format png -z 256 256 "$ICON_SRC" --out "$SET/icon_128x128@2x.png"
+          sips -s format png -z 256 256 "$ICON_SRC" --out "$SET/icon_256x256.png"
+          sips -s format png -z 512 512 "$ICON_SRC" --out "$SET/icon_256x256@2x.png"
+          sips -s format png -z 512 512 "$ICON_SRC" --out "$SET/icon_512x512.png"
+          iconutil -c icns "$SET" -o gwentfx-icon.icns
+          echo "ICON=gwentfx-icon.icns" >> "$GITHUB_ENV"
+
+      - name: Prepare icon (Linux -> .png)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq imagemagick
+          convert "$ICON_SRC" -resize 512x512 gwentfx-icon.png
+          echo "ICON=gwentfx-icon.png" >> "$GITHUB_ENV"
+
+      - name: Build app-image (portable, no installer)
+        run: |
+          jpackage \
+            --type app-image \
+            --name GwentFX \
+            --app-version "$APP_VERSION" \
+            --vendor "Numan Karaaslan" \
+            --description "GwentFX - a fan remake of the Gwent card game" \
+            --input staging \
+            --main-jar GwentFX.jar \
+            --main-class com.numankaraaslan.gwent.Main \
+            --icon "$ICON" \
+            --runtime-image "$JAVA_HOME" \
+            --java-options "--enable-native-access=ALL-UNNAMED" \
+            --dest app
+
+      # ---- Wrap the app-image into a single download, one per OS ----
+      # Windows -> app/GwentFX/ (folder with GwentFX.exe)   -> .zip
+      # macOS   -> app/GwentFX.app (bundle)                 -> .zip (ditto keeps symlinks)
+      # Linux   -> app/GwentFX/ (folder with bin/GwentFX)   -> .tar.gz
+      - name: Zip app (Windows)
+        if: runner.os == 'Windows'
+        run: powershell -Command "Compress-Archive -Path 'app/GwentFX' -DestinationPath 'dist/GwentFX-$VERSION-$LABEL.zip' -Force"
+
+      - name: Zip app (macOS)
+        if: runner.os == 'macOS'
+        run: ditto -c -k --keepParent "app/GwentFX.app" "dist/GwentFX-$VERSION-$LABEL.zip"
+
+      - name: Tar app (Linux)
+        if: runner.os == 'Linux'
+        run: tar -czf "dist/GwentFX-$VERSION-$LABEL.tar.gz" -C app GwentFX
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: gwentfx-${{ matrix.label }}
+          path: dist/*
+          if-no-files-found: error
+
+  release:
+    name: Publish GitHub Release
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/')   # only publish on a real tag push
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # needed so this job can create the Release + upload files
+    steps:
+      - name: Download all build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Create / update the GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          generate_release_notes: true
+          fail_on_unmatched_files: true
+          prerelease: ${{ contains(github.ref_name, '-') }}   # v1.2.0-beta1 -> pre-release

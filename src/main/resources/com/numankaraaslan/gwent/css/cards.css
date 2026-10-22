@@ -1,0 +1,209 @@
+/*
+ * Card visuals: unit / special cards (.card-view), leader cards (.leader-view), card backs (.card-back) and the
+ * info panel (.card-info-panel). The card art itself is drawn in code (com.numankaraaslan.gwent.ui.card); this file styles the
+ * interaction states (pseudo classes :selected :highlighted :dimmed :used :cancelled) and the info panel.
+ * JavaFX CSS cannot animate: all glows are static.
+ */
+
+/* ---------------------------------------------------------------- overlays shared by all card nodes */
+
+.card-view .card-ring,
+.leader-view .card-ring,
+.card-back .card-ring {
+    -fx-fill: transparent;
+    -fx-stroke: transparent;
+    -fx-stroke-type: inside;
+    -fx-stroke-width: 2;
+}
+
+.card-view .card-dim {
+    -fx-fill: transparent;
+}
+
+/* ---------------------------------------------------------------- unit, special and weather cards */
+
+.card-view:hover .card-ring {
+    -fx-stroke: rgba(243, 214, 144, 0.6);
+}
+
+/* valid target / playable */
+.card-view:highlighted {
+    -fx-effect: dropshadow(gaussian, rgba(150, 235, 110, 0.9), 16, 0.45, 0, 0);
+}
+
+.card-view:highlighted .card-ring {
+    -fx-stroke: #b4f08c;
+    -fx-stroke-width: 2.5;
+}
+
+/* selected wins over highlighted (declared later, same specificity) */
+.card-view:selected {
+    -fx-effect: dropshadow(gaussian, rgba(255, 208, 96, 1.0), 24, 0.55, 0, 0);
+}
+
+.card-view:selected .card-ring {
+    -fx-stroke: #ffe08a;
+    -fx-stroke-width: 3;
+}
+
+/* not selectable: faded (the art is also desaturated in code) */
+.card-view:dimmed {
+    -fx-opacity: 0.45;
+}
+
+.card-view:dimmed .card-dim {
+    -fx-fill: rgba(8, 6, 4, 0.3);
+}
+
+.card-view:dimmed:hover .card-ring {
+    -fx-stroke: transparent;
+}
+
+/* ---------------------------------------------------------------- leader cards */
+
+.leader-view:hover .card-ring {
+    -fx-stroke: rgba(243, 214, 144, 0.6);
+}
+
+/* ability can be used right now */
+.leader-view:highlighted {
+    -fx-effect: dropshadow(gaussian, rgba(255, 221, 120, 0.95), 22, 0.5, 0, 0);
+}
+
+.leader-view:highlighted .card-ring {
+    -fx-stroke: #ffe08a;
+    -fx-stroke-width: 2.5;
+}
+
+.leader-view:selected {
+    -fx-effect: dropshadow(gaussian, rgba(255, 208, 96, 1.0), 26, 0.55, 0, 0);
+}
+
+.leader-view:selected .card-ring {
+    -fx-stroke: #fff0b8;
+    -fx-stroke-width: 3;
+}
+
+.leader-view:used,
+.leader-view:cancelled {
+    -fx-opacity: 0.88;
+}
+
+.leader-view .leader-stamp {
+    visibility: hidden;
+    -fx-background-color: rgba(18, 12, 8, 0.82);
+    -fx-background-radius: 6;
+    -fx-border-color: #d9c79a;
+    -fx-border-width: 3;
+    -fx-border-radius: 6;
+    -fx-padding: 3 12 3 12;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.8), 8, 0.3, 0, 2);
+}
+
+.leader-view .leader-stamp .stamp-text {
+    -fx-fill: #eadfc8;
+}
+
+.leader-view .leader-stamp-cancelled {
+    -fx-border-color: #e0473a;
+}
+
+.leader-view .leader-stamp-cancelled .stamp-text {
+    -fx-fill: #ff6b5c;
+}
+
+.leader-view:used .leader-stamp-used {
+    visibility: visible;
+}
+
+.leader-view:cancelled .leader-stamp-cancelled {
+    visibility: visible;
+}
+
+/* a cancelled leader only shows the CANCELLED stamp */
+.leader-view:cancelled .leader-stamp-used {
+    visibility: hidden;
+}
+
+/* ---------------------------------------------------------------- info panel */
+
+.card-info-panel {
+    -fx-background-color: linear-gradient(to bottom, rgba(38, 28, 19, 0.95), rgba(17, 12, 8, 0.95));
+    -fx-background-radius: 10;
+    -fx-border-color: -gw-panel-border;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 10;
+    -fx-padding: 14 20 16 20;
+    -fx-spacing: 6;
+}
+
+.card-info-type {
+    -fx-font-size: 21px;
+    -fx-font-style: italic;
+    -fx-text-fill: -gw-text;
+    -fx-alignment: center;
+    -fx-text-alignment: center;
+    -fx-padding: 4 0 0 0;
+}
+
+.card-info-strength {
+    -fx-font-size: 21px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -gw-text;
+    -fx-alignment: center;
+    -fx-text-alignment: center;
+}
+
+.card-info-strength.buffed {
+    -fx-text-fill: -gw-green;
+}
+
+.card-info-strength.debuffed {
+    -fx-text-fill: -gw-red;
+}
+
+.card-info-rules {
+    -fx-line-spacing: 2;
+    -fx-padding: 6 2 0 2;
+}
+
+.card-info-rule-name {
+    -fx-fill: -gw-gold;
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+}
+
+.card-info-rule-text {
+    -fx-fill: -gw-text;
+    -fx-font-size: 22px;
+}
+
+.card-info-rules.compact .card-info-rule-name,
+.card-info-rules.compact .card-info-rule-text {
+    -fx-font-size: 20px;
+}
+
+.card-info-status {
+    -fx-font-size: 21px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -gw-red;
+    -fx-alignment: center;
+    -fx-text-alignment: center;
+    -fx-padding: 4 0 0 0;
+}
+
+.card-info-placeholder {
+    -fx-background-color: rgba(0, 0, 0, 0.18);
+    -fx-background-radius: 14;
+    -fx-border-color: rgba(168, 152, 124, 0.45);
+    -fx-border-style: segments(8, 6);
+    -fx-border-width: 2;
+    -fx-border-radius: 14;
+}
+
+.card-info-hint {
+    -fx-font-size: 19.5px;
+    -fx-font-style: italic;
+    -fx-text-fill: -gw-text-dim;
+    -fx-text-alignment: center;
+}
