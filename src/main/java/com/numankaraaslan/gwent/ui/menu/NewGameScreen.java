@@ -48,7 +48,7 @@ import javafx.util.Callback;
 public class NewGameScreen extends StackPane {
 
     private static final int[] HAND_SIZES = {10, 11, 12, 13, 14, 15};
-    private static final int[] REDRAW_COUNTS = {0, 1, 2, 3};
+    private static final int[] REDRAW_COUNTS = {0, 1, 2, 3, 4, 5};
     /** Size of the faction and leader cards under the drop-down lists. */
     private static final CardSize PICK_CARD = CardSize.LARGE;
     private static final double COMBO_ICON_SIZE = 28;
