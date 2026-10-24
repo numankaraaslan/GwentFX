@@ -214,7 +214,7 @@
 }
 
 .gm-panel-count {
-    -fx-font-size: 22px;
+    -fx-font-size: 32px;
     -fx-font-weight: bold;
     -fx-text-fill: -gw-text;
 }

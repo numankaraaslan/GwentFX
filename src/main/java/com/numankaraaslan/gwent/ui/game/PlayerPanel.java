@@ -41,14 +41,17 @@ final class PlayerPanel extends Pane {
     private static final double BADGE_SIZE = 72;
     private static final double GEM_SIZE = 68;
     private static final double GEM_GAP = 6;
-    private static final double HAND_ICON_SIZE = 22;
+    private static final double HAND_ICON_SIZE = 32;
+    private static final double HAND_HEIGHT = 44;
     /** Left edge of the texts, right of the leader card. */
     private static final double INFO_X = 172;
     /** The gem column at the right edge, and the top of the gem / count / score area. */
     private static final double GEMS_X = WIDTH - 10 - BADGE_SIZE;
     private static final double GEMS_Y = 80;
-    /** The score badge sits level with the middle of the gem column. */
-    private static final double SCORE_Y = GEMS_Y + (BADGE_SIZE + GEM_GAP) / 2;
+    /** The count of cards in hand is level with the upper gem. */
+    private static final double HAND_Y = GEMS_Y + (BADGE_SIZE - HAND_HEIGHT) / 2;
+    /** The score badge sits at the bottom, level with the lower gem. */
+    private static final double SCORE_Y = GEMS_Y + BADGE_SIZE + GEM_GAP;
 
     private final int side;
     private final BoardInput input;
@@ -99,7 +102,7 @@ final class PlayerPanel extends Pane {
         double textWidth = WIDTH - INFO_X - 6;
         Layouts.place(nameLabel, INFO_X, 8, textWidth, 36);
         Layouts.place(factionLabel, INFO_X, 46, textWidth, 30);
-        Layouts.place(handBox, INFO_X, 80, GEMS_X - INFO_X - 6, 30);
+        Layouts.place(handBox, INFO_X, HAND_Y, GEMS_X - INFO_X - 6, HAND_HEIGHT);
         Layouts.place(scoreBadge, INFO_X, SCORE_Y, BADGE_SIZE, BADGE_SIZE);
         Layouts.place(gems, GEMS_X, GEMS_Y, BADGE_SIZE, 2 * BADGE_SIZE + GEM_GAP);
         getChildren().addAll(leaderHolder, nameLabel, factionLabel, handBox, scoreBadge, gems);
