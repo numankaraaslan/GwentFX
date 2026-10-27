@@ -31,7 +31,7 @@ import javafx.scene.layout.VBox;
 public class MainMenuScreen extends StackPane {
 
     /** Shown in the bottom-left corner. Keep it the same as the version in pom.xml. */
-    private static final String VERSION = "1.1.2";
+    private static final String VERSION = "1.1.3";
 
     /** Size of the (unscaled) area the card fan is laid out in. */
     private static final double FAN_WIDTH = 1000;
