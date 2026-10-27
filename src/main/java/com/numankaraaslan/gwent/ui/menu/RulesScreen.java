@@ -279,7 +279,6 @@ public class RulesScreen extends StackPane {
             StackPane key = new StackPane(MenuUi.label(RulesText.CONTROL_KEYS[i], "rules-key"));
             key.getStyleClass().add("rules-key-box");
             TextFlow text = flow(RulesText.CONTROL_TEXTS[i], "rules-text", "rules-strong");
-            text.setPrefWidth(200);
             HBox.setHgrow(text, Priority.ALWAYS);
             HBox row = new HBox(key, text);
             row.getStyleClass().add("rules-control");
@@ -334,7 +333,6 @@ public class RulesScreen extends StackPane {
 
     private static HBox listItem(Node marker, String markup, String style) {
         TextFlow text = flow(markup, "rules-text", "rules-strong");
-        text.setPrefWidth(200);
         HBox.setHgrow(text, Priority.ALWAYS);
         HBox item = new HBox(marker, text);
         item.getStyleClass().add(style);
@@ -363,7 +361,6 @@ public class RulesScreen extends StackPane {
             texts.getChildren().add(flow(tipText, "rules-tip", "rules-tip-strong"));
         }
         texts.getStyleClass().add("rules-entry-text");
-        texts.setPrefWidth(200);
         HBox.setHgrow(texts, Priority.ALWAYS);
         HBox entry = new HBox(MenuUi.iconBox(icon, ICON_BOX_SIZE, "rules-entry-icon"), texts);
         entry.getStyleClass().add("rules-entry");
