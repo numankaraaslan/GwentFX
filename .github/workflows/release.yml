@@ -168,3 +168,17 @@ jobs:
           generate_release_notes: true
           fail_on_unmatched_files: true
           prerelease: ${{ contains(github.ref_name, '-') }}   # v1.2.0-beta1 -> pre-release
+
+      # Only the newest version is kept: once it's published, every older release
+      # (and its downloads) is deleted. The git tags stay. A pre-release deletes
+      # nothing, so the current stable release stays up next to it.
+      - name: Delete older releases
+        if: ${{ !contains(github.ref_name, '-') }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release list --repo "$GITHUB_REPOSITORY" --limit 100 --json tagName --jq '.[].tagName' | while read -r tag; do
+            if [ "$tag" != "$GITHUB_REF_NAME" ]; then
+              gh release delete "$tag" --repo "$GITHUB_REPOSITORY" --yes
+            fi
+          done

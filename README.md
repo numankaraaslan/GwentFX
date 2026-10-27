@@ -129,6 +129,8 @@ Release, with notes generated from the commits.
 
 - The version in the file names comes from the tag. A tag with a suffix, such as `v1.2.0-beta1`, is marked as a
   pre-release. Use version 1.0.0 or higher, because macOS packaging rejects a major version of 0.
+- Only the newest version is kept: publishing a release deletes all older releases and their downloads (their tags
+  stay). Publishing a pre-release deletes nothing.
 - Running the workflow by hand from the Actions tab builds the same archives and keeps them as workflow artifacts,
   without publishing a release.
 - The app icon is the JPG in the resources (also the window icon in the game) and the `.ico` in `packaging/`. To change
