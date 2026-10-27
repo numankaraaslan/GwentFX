@@ -2,7 +2,7 @@ package com.numankaraaslan.gwent.ui;
 
 import com.numankaraaslan.gwent.model.GameSettings;
 
-/** Screen switching. Implemented by {@link GwentApp}; call on the JavaFX thread. */
+/** Screen switching (and the releases page in the browser). Implemented by {@link GwentApp}; call on the JavaFX thread. */
 public interface Navigator
 {
 
@@ -16,6 +16,9 @@ public interface Navigator
     void showGallery();
 
     void showRules();
+
+    /** Opens the GitHub releases page in the default browser, where new versions can be downloaded. */
+    void showReleases();
 
     void quit();
 }

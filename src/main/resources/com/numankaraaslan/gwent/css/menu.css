@@ -245,9 +245,31 @@
     -fx-translate-y: -28;
 }
 
+/* bottom line: version and update button on the left, full-screen hint in the middle */
+.mm-footer-bar {
+    -fx-padding: 0 40 30 40;
+}
+
 .mm-footer {
     -fx-font-size: 18.5px;
-    -fx-padding: 0 0 26 0;
+}
+
+.mm-version-bar {
+    -fx-spacing: 20;
+    -fx-alignment: center-left;
+}
+
+/* Palatino has lining figures: in Georgia the digits are only as tall as lowercase letters */
+.mm-version {
+    -fx-font-family: "Palatino Linotype";
+    -fx-font-size: 22px;
+    -fx-text-fill: -gw-gold;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.9), 6, 0.4, 0, 1);
+}
+
+.mm-updates {
+    -fx-font-size: 20px;
+    -fx-padding: 7 22 7 22;
 }
 
 /* ================================================================ new game */

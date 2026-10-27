@@ -5,6 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.numankaraaslan</groupId>
     <artifactId>gwentfx</artifactId>
+    <!-- When you change the version, also change VERSION in MainMenuScreen.java (shown on the main menu). -->
     <version>1.1.1</version>
     <packaging>jar</packaging>
     <name>GwentFX</name>

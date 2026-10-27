@@ -4,7 +4,7 @@ import com.numankaraaslan.gwent.ui.Navigator;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 
-/** Button handler that switches to another screen (or quits the game). */
+/** Button handler that switches to another screen, opens the releases page or quits the game. */
 final class MenuAction implements EventHandler<ActionEvent> {
 
     /** Where a menu button leads. */
@@ -13,6 +13,7 @@ final class MenuAction implements EventHandler<ActionEvent> {
         NEW_GAME,
         GALLERY,
         RULES,
+        RELEASES,
         QUIT
     }
 
@@ -38,6 +39,9 @@ final class MenuAction implements EventHandler<ActionEvent> {
                 break;
             case RULES:
                 navigator.showRules();
+                break;
+            case RELEASES:
+                navigator.showReleases();
                 break;
             case QUIT:
                 navigator.quit();

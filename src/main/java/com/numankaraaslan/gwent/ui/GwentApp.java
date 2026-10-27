@@ -28,6 +28,8 @@ public final class GwentApp extends Application implements Navigator
 
     private static final String ICON = "/com/numankaraaslan/gwent/images/gwentfx-icon.jpg";
 
+    private static final String RELEASES_URL = "https://github.com/numankaraaslan/GwentFX/releases";
+
     private Stage stage;
     private ScaledPane root;
     private Node current;
@@ -108,6 +110,12 @@ public final class GwentApp extends Application implements Navigator
     public void showRules()
     {
         show(new RulesScreen(this));
+    }
+
+    @Override
+    public void showReleases()
+    {
+        getHostServices().showDocument(RELEASES_URL);
     }
 
     @Override

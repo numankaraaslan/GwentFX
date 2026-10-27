@@ -25,9 +25,13 @@ import javafx.scene.layout.VBox;
 
 /**
  * Title screen: the big GWENT title with the menu buttons (New Game, Card Gallery, How to Play, Quit) on the left and
- * a fan of iconic cards (Foltest, Triss, Geralt, Ciri, Yennefer, Eredin) on the right.
+ * a fan of iconic cards (Foltest, Triss, Geralt, Ciri, Yennefer, Eredin) on the right. The version and a button that
+ * opens the releases page sit in the bottom-left corner.
  */
 public class MainMenuScreen extends StackPane {
+
+    /** Shown in the bottom-left corner. Keep it the same as the version in pom.xml. */
+    private static final String VERSION = "1.1.1";
 
     /** Size of the (unscaled) area the card fan is laid out in. */
     private static final double FAN_WIDTH = 1000;
@@ -56,9 +60,24 @@ public class MainMenuScreen extends StackPane {
         Region frame = new Region();
         frame.getStyleClass().add("menu-frame");
         frame.setMouseTransparent(true);
+        StackPane footer = buildFooter(navigator);
+        StackPane.setAlignment(footer, Pos.BOTTOM_CENTER);
+        getChildren().addAll(layout, frame, footer);
+    }
+
+    /** Bottom line: the version and the update button on the left, the full-screen hint in the middle. */
+    private StackPane buildFooter(Navigator navigator) {
+        Label version = MenuUi.label("Version " + VERSION, "mm-version");
+        Button updates = MenuUi.button("Check for Updates", new MenuAction(navigator, MenuAction.Target.RELEASES), "mm-updates");
+        HBox versionBar = new HBox(version, updates);
+        versionBar.getStyleClass().add("mm-version-bar");
+        versionBar.setMaxWidth(Region.USE_PREF_SIZE);
+        StackPane.setAlignment(versionBar, Pos.CENTER_LEFT);
         Label hint = MenuUi.label("F11 toggles full screen", "gw-dim", "mm-footer");
-        StackPane.setAlignment(hint, Pos.BOTTOM_CENTER);
-        getChildren().addAll(layout, frame, hint);
+        StackPane footer = new StackPane(versionBar, hint);
+        footer.getStyleClass().add("mm-footer-bar");
+        footer.setMaxHeight(Region.USE_PREF_SIZE);
+        return footer;
     }
 
     private VBox buildMenu(Navigator navigator) {
