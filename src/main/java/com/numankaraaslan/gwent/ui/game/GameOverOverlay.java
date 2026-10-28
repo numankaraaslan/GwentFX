@@ -26,7 +26,6 @@ final class GameOverOverlay extends VBox {
         int winner = snapshot.winner();
         String title = winner == GameState.HUMAN ? "Victory" : winner == GameState.AI ? "Defeat" : "Draw";
         String variant = winner == GameState.HUMAN ? "gm-result-victory" : winner == GameState.AI ? "gm-result-defeat" : "gm-result-draw";
-        String text = winner == GameState.HUMAN ? "You won the game." : winner == GameState.AI ? "The opponent won the game." : "Nobody won the game.";
         HBox heading = new HBox(16);
         heading.setAlignment(Pos.CENTER);
         if (winner == GameState.HUMAN) {
@@ -38,7 +37,7 @@ final class GameOverOverlay extends VBox {
         }
         HBox buttons = new HBox(16, Layouts.button("Play again", true, playAgain), Layouts.button("New game", false, newGame), Layouts.button("Main menu", false, mainMenu));
         buttons.setAlignment(Pos.CENTER);
-        getChildren().addAll(heading, Layouts.label(text, "gw-subheading", "gm-result-text"), table(snapshot.results()), buttons);
+        getChildren().addAll(heading, table(snapshot.results()), buttons);
     }
 
     private static GridPane table(List<RoundResult> results) {
