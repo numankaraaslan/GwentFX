@@ -88,7 +88,7 @@ java -jar target/GwentFX.jar
 On the New Game screen you choose your faction and leader (or a random leader). You can also change:
 
 - the starting hand: 10–15 cards (default 10, as in the original);
-- the number of redraws: 0–5 (default 2, as in the original);
+- the number of redraws: 0–6 (default 2, as in the original);
 - the opponent's faction and leader (default random);
 - the difficulty: Easy, Normal or Hard (default Normal).
 

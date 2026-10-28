@@ -48,7 +48,7 @@ import javafx.util.Callback;
 public class NewGameScreen extends StackPane {
 
     private static final int[] HAND_SIZES = {10, 11, 12, 13, 14, 15};
-    private static final int[] REDRAW_COUNTS = {0, 1, 2, 3, 4, 5};
+    private static final int[] REDRAW_COUNTS = {0, 1, 2, 3, 4, 5, 6};
     /** Size of the faction and leader cards under the drop-down lists. */
     private static final CardSize PICK_CARD = CardSize.LARGE;
     private static final double COMBO_ICON_SIZE = 28;
@@ -261,10 +261,10 @@ public class NewGameScreen extends StackPane {
 
     private void fillOptions() {
         for (int size : HAND_SIZES) {
-            handSizes.add(size, size == GameSettings.DEFAULT_HAND_SIZE ? size + " (original)" : String.valueOf(size), null);
+            handSizes.add(size, String.valueOf(size), null);
         }
         for (int count : REDRAW_COUNTS) {
-            redraws.add(count, count == GameSettings.DEFAULT_REDRAWS ? count + " (original)" : String.valueOf(count), null);
+            redraws.add(count, String.valueOf(count), null);
         }
         for (Difficulty difficulty : Difficulty.values()) {
             difficulties.add(difficulty, difficulty.displayName(), null);

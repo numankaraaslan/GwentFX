@@ -100,7 +100,7 @@ final class RulesText {
 
     static final String OPTIONS_1 = "In The Witcher 3 you win cards by playing Gwent all over the world and build your own deck from them (at least 22 unit cards, at most 10 special cards). This version **skips deck building**: your deck is simply your faction's **complete collection plus every neutral card** — units, heroes, special and weather cards, each as many times as it exists in the original game. The computer's deck is built the same way.";
     static final String OPTIONS_HAND = "**Starting hand**: how many cards are dealt at the start — **10** in the original game, up to 15 here. More cards mean longer rounds and bigger combos.";
-    static final String OPTIONS_REDRAWS = "**Redraws**: how many cards you may swap after the deal — **2** in the original game, 0 to 5 here.";
+    static final String OPTIONS_REDRAWS = "**Redraws**: how many cards you may swap after the deal — **2** in the original game, 0 to 6 here.";
     static final String OPTIONS_DIFFICULTY = "**Difficulty**: how well the computer plays — Easy, Normal or Hard.";
     static final String OPTIONS_2 = "You set all of this on the **New Game** screen, which remembers your choices until you quit.";
 
