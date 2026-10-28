@@ -4,8 +4,9 @@ import com.numankaraaslan.gwent.model.CardDef;
 import java.util.Collections;
 
 /**
- * Builds a player's deck: every card of the faction plus every neutral card, each as many times as it exists in the
- * original game's collection, shuffled. There is no deck building - the starting hand is simply drawn from this pool.
+ * Builds a player's deck: every card of the faction plus every neutral card that is in the game's card pool, each as
+ * many times as it exists in the original game's collection, shuffled. There is no deck building - the starting hand is
+ * simply drawn from this deck.
  */
 public final class DeckBuilder {
 
@@ -15,8 +16,10 @@ public final class DeckBuilder {
     public static void fill(GameState state, int player) {
         PlayerState side = state.player(player);
         for (CardDef def : state.db().deckPool(side.faction())) {
-            for (int i = 0; i < def.copies(); i++) {
-                side.deck().add(new CardInstance(state.newCardId(), def, player));
+            if (state.pool().contains(def)) {
+                for (int i = 0; i < def.copies(); i++) {
+                    side.deck().add(new CardInstance(state.newCardId(), def, player));
+                }
             }
         }
         Collections.shuffle(side.deck(), state.random());

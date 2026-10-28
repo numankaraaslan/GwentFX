@@ -78,7 +78,7 @@ wiki alone; those are marked *(wiki)* and are the most likely to differ from the
 ## Round flow
 
 - As in the original, you're dealt 10 cards and may redraw up to 2 of them; both numbers can be changed on the
-  New Game screen. Each redrawn card goes to the bottom of the deck.
+  setup screen. Each redrawn card goes to the bottom of the deck.
 - Each player has 2 gems. A drawn round costs both players a gem, unless Nilfgaard wins the tie.
 - A player with no legal move is passed automatically. Starting a round with an empty hand means
   sitting that round out.
@@ -89,3 +89,26 @@ wiki alone; those are marked *(wiki)* and are the most likely to differ from the
 
 Battlefield cards go to the discard pile of the side they were on, so a spy you played ends up in your opponent's
 pile. Weather cards go back to whoever played them.
+
+## Collector Mode
+
+Collector Mode isn't in the original game; it brings back a little of its card collecting. There is still no deck
+building: both decks hold every card of their faction plus every neutral card, but only the cards you own, with all
+their copies. The computer plays with the same cards. You own the starter cards from the start, and every win
+unlocks one more card, picked at random from the tier of the difficulty you beat:
+
+| Tier | Cards | Cards to win |
+| --- | --- | --- |
+| Starter | Units of strength 4 or less, except spies, Medics, Scorch and Horn units. Every weather card, Clear Weather included. | owned from the start |
+| Easy | Units of strength 5 to 7. | 47 |
+| Normal | Units of strength 8 or more. Spies, Medics, Scorch units (row scorch included) and Horn units of any strength. The special cards: Commander's Horn, Decoy, Scorch, Mardroeme. | 26 |
+| Hard | Heroes, whatever their ability. | 24 |
+
+- A card is won with all its copies. The two Muster families with different names, the three Crones and the five
+  Vampires, are won together as one card, in the highest tier of their members (Easy for both).
+- A win picks only from its own tier, never a lower one. Once a tier is complete, wins at that difficulty unlock
+  nothing. Losses and draws unlock nothing.
+- 97 wins unlock everything. With only the starter cards, a deck holds 31–37 cards, depending on the faction.
+- Weather cards are starter cards so that every leader ability works from the first game. Two passive leaders do
+  nothing until their cards are won: Eredin Bréacc Glas: The Treacherous needs spies, and Emhyr var Emreis: Invader
+  of the North needs Medics.

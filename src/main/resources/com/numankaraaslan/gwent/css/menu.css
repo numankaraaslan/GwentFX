@@ -1,7 +1,8 @@
 /*
- * Menu screens: main menu, new game setup, card gallery and "How to play".
+ * Menu screens: main menu, game setup (Free Play and Collector Mode), card gallery, my collection and "How to play".
  * Builds on the looked-up colours of app.css (-gw-gold, -gw-text, ...).
- * Class prefixes: menu- (shared by the menu screens), mm- (main menu), ng- (new game), gallery- and rules-.
+ * Class prefixes: menu- (shared by the menu screens), mm- (main menu), ng- (game setup), gallery-, collection- (my
+ * collection, which also uses the gallery- classes and the rules- callout) and rules-.
  */
 
 /* ================================================================ shared */
@@ -514,6 +515,48 @@
     -fx-padding: 11 46 11 46;
 }
 
+/* ---------------------------------------------------------------- collector mode extras */
+
+/* extra header buttons of a game mode ("My Collection"), sized like the Back button */
+.ng-screen .ng-link {
+    -fx-font-size: 22px;
+    -fx-padding: 8 26 8 26;
+}
+
+/* difficulty buttons: Collector Mode adds a second line under the name, "47 cards left" */
+.ng-difficulty {
+    -fx-content-display: bottom;
+    -fx-graphic-text-gap: 1;
+}
+
+.ng-cards-left {
+    -fx-spacing: 6;
+    -fx-alignment: baseline-center;
+}
+
+.ng-cards-left-count {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -gw-gold-bright;
+}
+
+.ng-cards-left-text {
+    -fx-font-size: 18px;
+    -fx-text-fill: -gw-text-dim;
+}
+
+.menu-option:selected .ng-cards-left-count {
+    -fx-text-fill: #1b130b;
+}
+
+.menu-option:selected .ng-cards-left-text {
+    -fx-text-fill: #3a2a17;
+}
+
+.ng-cards-left-done .ng-cards-left-count {
+    -fx-text-fill: -gw-text-dim;
+}
+
 /* ================================================================ card gallery */
 
 .gallery-body {
@@ -633,6 +676,56 @@
 .gallery-hint {
     -fx-font-size: 18px;
     -fx-text-fill: -gw-text-dim;
+}
+
+/* ================================================================ my collection */
+
+/* the progress line under the tabs: cards won per difficulty and "Reset progress" */
+.collection-progress {
+    -fx-spacing: 14;
+    -fx-alignment: center-left;
+    -fx-padding: 14 0 0 0;
+}
+
+.collection-progress-title {
+    -fx-font-size: 21px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -gw-gold;
+}
+
+.collection-chip {
+    -fx-font-size: 20px;
+    -fx-text-fill: -gw-text;
+    -fx-background-color: rgba(212, 175, 90, 0.10);
+    -fx-background-radius: 14;
+    -fx-border-color: -gw-gold-dark;
+    -fx-border-radius: 14;
+    -fx-padding: 4 14 4 14;
+}
+
+.collection-reset {
+    -fx-spacing: 12;
+    -fx-alignment: center-right;
+}
+
+.collection-reset-text {
+    -fx-font-size: 19px;
+    -fx-text-fill: -gw-text;
+}
+
+.collection-button {
+    -fx-font-size: 19px;
+    -fx-padding: 6 18 6 18;
+}
+
+.menu-caption-locked {
+    -fx-text-fill: -gw-text-dim;
+    -fx-font-style: italic;
+}
+
+.collection-note {
+    -fx-font-size: 20px;
+    -fx-text-fill: -gw-text;
 }
 
 /* ================================================================ how to play */

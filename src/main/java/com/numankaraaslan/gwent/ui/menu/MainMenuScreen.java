@@ -24,9 +24,9 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
 /**
- * Title screen: the big GWENT title with the menu buttons (New Game, Card Gallery, How to Play, Quit) on the left and
- * a fan of iconic cards (Foltest, Triss, Geralt, Ciri, Yennefer, Eredin) on the right. The version and a button that
- * opens the releases page sit in the bottom-left corner.
+ * Title screen: the big GWENT title with the menu buttons (Free Play, Collector Mode, Card Gallery, How to Play, Quit)
+ * on the left and a fan of iconic cards (Foltest, Triss, Geralt, Ciri, Yennefer, Eredin) on the right. The version and a
+ * button that opens the releases page sit in the bottom-left corner.
  */
 public class MainMenuScreen extends StackPane {
 
@@ -86,12 +86,13 @@ public class MainMenuScreen extends StackPane {
         Label subtitle = MenuUi.label("The Witcher 3 card game — you against the computer", "mm-subtitle");
         Region line = MenuUi.separator();
         line.getStyleClass().add("mm-separator");
-        Button newGame = MenuUi.button("New Game", new MenuAction(navigator, MenuAction.Target.NEW_GAME), "gw-button-primary", "mm-button");
-        newGame.setDefaultButton(true);
+        Button freePlay = MenuUi.button("Free Play", new MenuAction(navigator, MenuAction.Target.FREE_PLAY), "gw-button-primary", "mm-button");
+        freePlay.setDefaultButton(true);
+        Button collector = MenuUi.button("Collector Mode", new MenuAction(navigator, MenuAction.Target.COLLECTOR_MODE), "mm-button");
         Button gallery = MenuUi.button("Card Gallery", new MenuAction(navigator, MenuAction.Target.GALLERY), "mm-button");
         Button rules = MenuUi.button("How to Play", new MenuAction(navigator, MenuAction.Target.RULES), "mm-button");
         Button quit = MenuUi.button("Quit", new MenuAction(navigator, MenuAction.Target.QUIT), "mm-button");
-        VBox buttons = new VBox(newGame, gallery, rules, quit);
+        VBox buttons = new VBox(freePlay, collector, gallery, rules, quit);
         buttons.getStyleClass().add("mm-buttons");
         VBox menu = new VBox(crown, title, subtitle, line, buttons);
         menu.getStyleClass().add("mm-menu");

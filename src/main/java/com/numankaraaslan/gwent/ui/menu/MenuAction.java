@@ -10,7 +10,8 @@ final class MenuAction implements EventHandler<ActionEvent> {
     /** Where a menu button leads. */
     enum Target {
         MAIN_MENU,
-        NEW_GAME,
+        FREE_PLAY,
+        COLLECTOR_MODE,
         GALLERY,
         RULES,
         RELEASES,
@@ -31,8 +32,11 @@ final class MenuAction implements EventHandler<ActionEvent> {
             case MAIN_MENU:
                 navigator.showMainMenu();
                 break;
-            case NEW_GAME:
-                navigator.showNewGame();
+            case FREE_PLAY:
+                navigator.showFreePlay();
+                break;
+            case COLLECTOR_MODE:
+                navigator.showCollectorMode();
                 break;
             case GALLERY:
                 navigator.showGallery();

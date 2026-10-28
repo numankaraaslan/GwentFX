@@ -2,8 +2,9 @@
 
 A fan-made remake of the original **Witcher 3 in-game Gwent** as a standalone JavaFX game: you against the computer, with all
 five factions (Northern Realms, Nilfgaard, Scoia'tael, Monsters, Skellige), every leader, hero, special
-card and weather card. You own every card from the start, and your starting hand is dealt at random from
-your faction's cards plus the neutral cards.
+card and weather card. Play **Free Play** with every card from the start, or **Collector Mode**, where you start with
+the weaker cards and every win unlocks a new one. Your starting hand is dealt at random from your faction's cards plus
+the neutral cards.
 
 See [RULES.md](RULES.md) for how the original rules were interpreted, and [AI.md](AI.md) for how the computer
 opponent makes its decisions.
@@ -14,9 +15,9 @@ opponent makes its decisions.
 
 *The main menu.*
 
-![The New Game screen](screenshots/new-game.jpg)
+![The setup screen](screenshots/new-game.jpg)
 
-*The New Game screen: faction, leader, opponent and rules.*
+*The setup screen: faction, leader, opponent and rules.*
 
 ![Redrawing cards before the first round](screenshots/redraw.jpg)
 
@@ -83,9 +84,24 @@ java -jar target/GwentFX.jar
   The **Card Gallery** shows every card.
 - **F11** toggles full screen.
 
-## New game options
+## Game modes
 
-On the New Game screen you choose your faction and leader (or a random leader). You can also change:
+Both are started from the main menu.
+
+- **Free Play**: you and the computer play with every card.
+- **Collector Mode**: you start with the starter cards, units of strength 4 or less and the weather cards. Every win
+  unlocks one random card with all its copies: a unit of strength 5 to 7 on Easy, a strong card on Normal (spies,
+  Medics, Scorch and Horn units, special cards, units of strength 8 or more), a hero on Hard. The computer plays with
+  the same cards you own. The difficulty buttons show how many cards each difficulty can still unlock, and
+  **My Collection** shows the cards you own. [RULES.md](RULES.md#collector-mode) has the details.
+
+  Your collection is saved in `.gwentfx/collection.txt` in your home folder, one card id per line. **Reset progress**
+  in My Collection, or deleting that file, starts over. If the file is missing it is created, and lines that aren't
+  card ids are ignored.
+
+## Setup options
+
+On the setup screen of either mode you choose your faction and leader (or a random leader). You can also change:
 
 - the starting hand: 10–15 cards (default 10, as in the original);
 - the number of redraws: 0–6 (default 2, as in the original);
@@ -94,9 +110,9 @@ On the New Game screen you choose your faction and leader (or a random leader). 
 
 ## Not included
 
-- Deck building: your deck is always your faction's full collection plus every neutral card, at the original
-  game's copy counts.
-- Multiplayer, and saving or loading a game.
+- Deck building: your deck is always every card of your faction plus every neutral card you have (all of them in Free
+  Play), at the original game's copy counts.
+- Multiplayer, and saving or loading a game in progress.
 - Sound and music.
 - Card artwork: the cards are drawn by the program.
 

@@ -2,6 +2,7 @@ package com.numankaraaslan.gwent.engine;
 
 import com.numankaraaslan.gwent.engine.snapshot.Snapshots;
 import com.numankaraaslan.gwent.model.CardDatabase;
+import com.numankaraaslan.gwent.model.CardPool;
 import com.numankaraaslan.gwent.model.Faction;
 import com.numankaraaslan.gwent.model.GameSettings;
 import com.numankaraaslan.gwent.model.LeaderAbility;
@@ -14,8 +15,8 @@ import java.util.Random;
  * Runs one game of Gwent on its own thread: deal, redraw, coin toss, three rounds of turns, game over.
  * Talks to the two {@link PlayerController}s for decisions and reports every step to the {@link GameListener}.
  *
- * <p>Typical use from the UI: {@code new GameEngine(settings, humanController, aiController, listener).start()},
- * and {@link #stop()} when leaving the game screen.</p>
+ * <p>Typical use from the UI: {@code new GameEngine(settings, pool, humanController, aiController, listener).start()},
+ * and {@link #stop()} when leaving the game screen. Both decks are built from the cards in {@code pool}.</p>
  */
 public final class GameEngine implements Runnable {
 
@@ -29,7 +30,7 @@ public final class GameEngine implements Runnable {
     /** Player who made the last move of the current round (decides who starts after a drawn round). */
     private int lastMover;
 
-    public GameEngine(GameSettings settings, PlayerController human, PlayerController ai, GameListener listener) {
+    public GameEngine(GameSettings settings, CardPool pool, PlayerController human, PlayerController ai, GameListener listener) {
         CardDatabase db = CardDatabase.get();
         Random random = new Random();
         LeaderDef humanLeader = settings.playerLeader() != null ? settings.playerLeader() : randomLeader(db, settings.playerFaction(), random);
@@ -37,7 +38,7 @@ public final class GameEngine implements Runnable {
         LeaderDef aiLeader = settings.aiLeader() != null && settings.aiLeader().faction() == aiFaction ? settings.aiLeader() : randomLeader(db, aiFaction, random);
         PlayerState player0 = new PlayerState(GameState.HUMAN, "You", settings.playerFaction(), humanLeader);
         PlayerState player1 = new PlayerState(GameState.AI, "Opponent", aiFaction, aiLeader);
-        this.state = new GameState(db, settings, player0, player1, random);
+        this.state = new GameState(db, settings, pool, player0, player1, random);
         PlayerController safeAi = new SafeController(ai);
         this.controllers = new PlayerController[] {human, safeAi};
         this.listener = listener;

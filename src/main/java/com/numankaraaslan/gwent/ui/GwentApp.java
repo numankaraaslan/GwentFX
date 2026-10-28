@@ -3,10 +3,14 @@ package com.numankaraaslan.gwent.ui;
 import com.numankaraaslan.gwent.model.CardDatabase;
 import com.numankaraaslan.gwent.model.GameSettings;
 import com.numankaraaslan.gwent.ui.game.GameScreen;
+import com.numankaraaslan.gwent.ui.menu.CollectionScreen;
 import com.numankaraaslan.gwent.ui.menu.GalleryScreen;
 import com.numankaraaslan.gwent.ui.menu.MainMenuScreen;
 import com.numankaraaslan.gwent.ui.menu.NewGameScreen;
 import com.numankaraaslan.gwent.ui.menu.RulesScreen;
+import com.numankaraaslan.gwent.ui.mode.CollectorMode;
+import com.numankaraaslan.gwent.ui.mode.FreePlayMode;
+import com.numankaraaslan.gwent.ui.mode.GameMode;
 import java.net.URL;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -89,15 +93,27 @@ public final class GwentApp extends Application implements Navigator
     }
 
     @Override
-    public void showNewGame()
+    public void showFreePlay()
     {
-        show(new NewGameScreen(this));
+        show(new NewGameScreen(this, new FreePlayMode()));
     }
 
     @Override
-    public void startGame(GameSettings settings)
+    public void showCollectorMode()
     {
-        show(new GameScreen(this, settings));
+        show(new NewGameScreen(this, new CollectorMode()));
+    }
+
+    @Override
+    public void showCollection()
+    {
+        show(new CollectionScreen(this));
+    }
+
+    @Override
+    public void startGame(GameSettings settings, GameMode mode)
+    {
+        show(new GameScreen(this, settings, mode));
     }
 
     @Override

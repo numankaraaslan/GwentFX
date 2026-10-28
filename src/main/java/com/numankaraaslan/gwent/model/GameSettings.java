@@ -1,7 +1,8 @@
 package com.numankaraaslan.gwent.model;
 
 /**
- * Everything chosen on the "New Game" screen.
+ * Everything chosen on the setup screen of Free Play or Collector Mode. Which cards the decks are built from is not a
+ * choice: the game mode decides it.
  *
  * @param playerFaction faction of the human player
  * @param playerLeader  leader of the human player, or null for a random leader of that faction

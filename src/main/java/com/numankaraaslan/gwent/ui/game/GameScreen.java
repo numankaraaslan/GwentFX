@@ -7,6 +7,8 @@ import com.numankaraaslan.gwent.model.Difficulty;
 import com.numankaraaslan.gwent.model.GameSettings;
 import com.numankaraaslan.gwent.ui.Disposable;
 import com.numankaraaslan.gwent.ui.Navigator;
+import com.numankaraaslan.gwent.ui.mode.GameMode;
+import com.numankaraaslan.gwent.ui.mode.ResultNote;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.beans.value.ChangeListener;
@@ -22,7 +24,8 @@ import javafx.scene.layout.StackPane;
 
 /**
  * The game board screen. Creates the {@link GameEngine} with the human controller (board + prompts), the computer
- * opponent and the FX listener, and starts it; {@link #dispose()} stops it again.
+ * opponent and the FX listener, and starts it; {@link #dispose()} stops it again. The {@link GameMode} supplies the cards
+ * the decks are built from and decides what happens after the game.
  *
  * <p>Threading: the engine runs on its own thread. Events reach the screen through {@link FxGameListener}, which waits
  * on a latch until {@link EventAnimator} has animated them; decisions are asked by {@link HumanController}, which waits
@@ -36,6 +39,7 @@ public class GameScreen extends StackPane implements Disposable {
 
     private final Navigator navigator;
     private final GameSettings settings;
+    private final GameMode mode;
     private final EffectsLayer effects = new EffectsLayer();
     private final OverlayLayer overlays = new OverlayLayer();
     private final BoardView board;
@@ -55,11 +59,13 @@ public class GameScreen extends StackPane implements Disposable {
      * Builds the board and starts a new game right away.
      *
      * @param navigator screen switching (menus, play again)
-     * @param settings  the options chosen on the New Game screen
+     * @param settings  the options chosen on the setup screen
+     * @param mode      Free Play or Collector Mode
      */
-    public GameScreen(Navigator navigator, GameSettings settings) {
+    public GameScreen(Navigator navigator, GameSettings settings, GameMode mode) {
         this.navigator = navigator;
         this.settings = settings;
+        this.mode = mode;
         getStyleClass().addAll("screen", "gm-game-screen");
         Layouts.fix(this, BoardView.WIDTH, BoardView.HEIGHT);
         Difficulty difficulty = settings.difficulty() == null ? Difficulty.NORMAL : settings.difficulty();
@@ -77,7 +83,7 @@ public class GameScreen extends StackPane implements Disposable {
         human = new HumanController(prompts);
         listener = new FxGameListener(animator);
         try {
-            engine = new GameEngine(settings, human, new AiController(difficulty), listener);
+            engine = new GameEngine(settings, mode.pool(), human, new AiController(difficulty), listener);
             engine.start();
         } catch (RuntimeException e) {
             engine = null;
@@ -143,22 +149,23 @@ public class GameScreen extends StackPane implements Disposable {
         animator.setPaused(false);
     }
 
-    /** Shows the result screen (called by the animator for GAME_ENDED). */
+    /** Shows the result screen (called by the animator for GAME_ENDED), with what the mode adds to it, if anything. */
     void showGameOver(GameSnapshot snapshot) {
         if (disposed) {
             return;
         }
         closePauseMenu();
         input.end();
-        GameOverOverlay content = new GameOverOverlay(snapshot, new Runnable() {
+        ResultNote note = mode.gameEnded(settings, snapshot.winner());
+        GameOverOverlay content = new GameOverOverlay(snapshot, note, new Runnable() {
             @Override
             public void run() {
-                navigator.startGame(settings);
+                navigator.startGame(settings, mode);
             }
         }, new Runnable() {
             @Override
             public void run() {
-                navigator.showNewGame();
+                mode.openSetup(navigator);
             }
         }, new Runnable() {
             @Override

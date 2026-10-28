@@ -7,6 +7,7 @@ import com.numankaraaslan.gwent.engine.Move;
 import com.numankaraaslan.gwent.engine.PlayerState;
 import com.numankaraaslan.gwent.engine.RowState;
 import com.numankaraaslan.gwent.engine.snapshot.CardSnapshot;
+import com.numankaraaslan.gwent.model.Ability;
 import com.numankaraaslan.gwent.model.CardDef;
 import com.numankaraaslan.gwent.model.Difficulty;
 import com.numankaraaslan.gwent.model.RowType;
@@ -38,13 +39,18 @@ import java.util.Set;
  *   <li>Giving up a round that isn't decisive: first save what can be saved (spies, a Decoy taking back a valuable unit,
  *       an Avenger whose replacement arrives next round), then pass.</li>
  * </ul>
+ *
+ * <p>The budgets and leads below are tuned for the full collection. They are always used through
+ * {@link RoundContext#scaled}, which shrinks them when the decks hold weaker cards (Collector Mode).</p>
  */
 final class AiBrain
 {
 
     /** Chance that the Easy AI plays a random move instead of its best one. */
     private static final double EASY_RANDOM_MOVE = 0.35;
-    /** How likely Hard assumes an unseen Scorch in the opponent's hand. */
+    /** Lead at which the Easy AI may pass early. */
+    private static final double EASY_PASS_LEAD = 6;
+    /** How likely Hard assumes an unseen Scorch in the opponent's hand, when their deck has one. */
     private static final double SCORCH_RISK_UNKNOWN = 0.2;
     /** ... and when Emperor of Nilfgaard revealed one. */
     private static final double SCORCH_RISK_REVEALED = 0.8;
@@ -58,6 +64,8 @@ final class AiBrain
     private static final int MUST_WIN_SAFE_LEAD = 25;
     /** ...or this big when the opponent has at most one card left. */
     private static final int MUST_WIN_SAFE_LEAD_LAST_CARD = 15;
+    /** In round 1, while ahead with fewer cards than the opponent, only play on with a move scoring at least this much. */
+    private static final double ROUND_ONE_PUSH_MIN_SCORE = 2;
     /** When giving up a lost round, only make "save" moves that keep at least this much card potential. */
     private static final double SAVE_MIN_RESOURCES = 5;
 
@@ -101,7 +109,14 @@ final class AiBrain
         double risk = 0;
         if (difficulty == Difficulty.HARD && !ctx.oppPassed() && ctx.oppHand() > 0)
         {
-            risk = opponentMayHoldScorch(state) ? SCORCH_RISK_REVEALED : SCORCH_RISK_UNKNOWN;
+            if (opponentMayHoldScorch(state))
+            {
+                risk = SCORCH_RISK_REVEALED;
+            }
+            else if (opponentDeckHasScorch(state, ctx.opp()))
+            {
+                risk = SCORCH_RISK_UNKNOWN;
+            }
         }
         List<MoveEval> evals = simulator.evaluateAll(state, ctx, plays, risk);
         if (evals.isEmpty())
@@ -170,15 +185,16 @@ final class AiBrain
             }
             return concede(ctx, evals);
         }
-        MoveEval cheap = cheapestWinning(ctx, evals, -ROUND_ONE_CHASE_BUDGET, Double.NEGATIVE_INFINITY);
+        double chaseBudget = ctx.scaled(ROUND_ONE_CHASE_BUDGET);
+        MoveEval cheap = cheapestWinning(ctx, evals, -chaseBudget, Double.NEGATIVE_INFINITY);
         if (cheap != null)
         {
             return cheap.move();
         }
         if (ctx.cardAdvantage() >= 1 && concededRound != trackedRound)
         {
-            MoveEval progress = bestGainWithin(evals, -ROUND_ONE_CHASE_BUDGET);
-            if (progress != null && progress.gain() > 0 && reachable(evals, ctx.need(), 2, -ROUND_ONE_CHASE_BUDGET))
+            MoveEval progress = bestGainWithin(evals, -chaseBudget);
+            if (progress != null && progress.gain() > 0 && reachable(evals, ctx.need(), 2, -chaseBudget))
             {
                 return progress.move();
             }
@@ -238,7 +254,7 @@ final class AiBrain
         {
             return cardGain.move();
         }
-        if (ctx.oppOutOfMoves() || ctx.diff() >= MUST_WIN_SAFE_LEAD || (ctx.oppHand() <= 1 && ctx.diff() >= MUST_WIN_SAFE_LEAD_LAST_CARD))
+        if (ctx.oppOutOfMoves() || ctx.diff() >= ctx.scaled(MUST_WIN_SAFE_LEAD) || (ctx.oppHand() <= 1 && ctx.diff() >= ctx.scaled(MUST_WIN_SAFE_LEAD_LAST_CARD)))
         {
             return passOrFreeMove(ctx, evals);
         }
@@ -260,7 +276,7 @@ final class AiBrain
         }
         if (ctx.cardAdvantage() >= 1)
         {
-            MoveEval retake = cheapestWinning(ctx, evals, -OPPONENT_MUST_WIN_BUDGET, Double.NEGATIVE_INFINITY);
+            MoveEval retake = cheapestWinning(ctx, evals, -ctx.scaled(OPPONENT_MUST_WIN_BUDGET), Double.NEGATIVE_INFINITY);
             if (retake != null)
             {
                 return retake.move();
@@ -290,7 +306,7 @@ final class AiBrain
             {
                 return passOrFreeMove(ctx, evals);
             }
-            if (canSpend && best != null && best.score() >= 2)
+            if (canSpend && best != null && best.score() >= ctx.scaled(ROUND_ONE_PUSH_MIN_SCORE))
             {
                 return best.move();
             }
@@ -301,7 +317,7 @@ final class AiBrain
         {
             return cardGain.move();
         }
-        MoveEval retake = cheapestWinning(ctx, evals, -ROUND_ONE_RETAKE_BUDGET, 0);
+        MoveEval retake = cheapestWinning(ctx, evals, -ctx.scaled(ROUND_ONE_RETAKE_BUDGET), 0);
         if (retake != null && canSpend)
         {
             return retake.move();
@@ -350,7 +366,7 @@ final class AiBrain
         concededRound = trackedRound;
         if (!ctx.finalRound() && ctx.losing())
         {
-            MoveEval save = bestSave(evals);
+            MoveEval save = bestSave(ctx, evals);
             if (save != null)
             {
                 return save.move();
@@ -389,7 +405,7 @@ final class AiBrain
             {
                 return Move.pass();
             }
-            if (!ctx.oppPassed() && ctx.winning() && ctx.diff() >= 6 && random.nextDouble() < 0.6)
+            if (!ctx.oppPassed() && ctx.winning() && ctx.diff() >= ctx.scaled(EASY_PASS_LEAD) && random.nextDouble() < 0.6)
             {
                 return Move.pass();
             }
@@ -570,12 +586,13 @@ final class AiBrain
     }
 
     /** The move that saves the most card potential for later rounds, whatever it does to the current (lost) round. */
-    private static MoveEval bestSave(List<MoveEval> evals)
+    private static MoveEval bestSave(RoundContext ctx, List<MoveEval> evals)
     {
+        double minResources = ctx.scaled(SAVE_MIN_RESOURCES);
         MoveEval best = null;
         for (MoveEval eval : evals)
         {
-            if (eval.move().isLeader() || eval.resources() < SAVE_MIN_RESOURCES)
+            if (eval.move().isLeader() || eval.resources() < minResources)
             {
                 continue;
             }
@@ -634,6 +651,23 @@ final class AiBrain
         for (Map.Entry<Integer, CardDef> entry : revealed.entrySet())
         {
             if (entry.getValue().special() == SpecialType.SCORCH && !isPublic(state, entry.getKey()))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Whether the opponent's deck holds a card that scorches the whole battlefield: Scorch, or Clan Dimun Pirate for
+     * Skellige. In Collector Mode it may hold neither, and then there is no Scorch to fear. Both players know which
+     * cards the decks are built from.
+     */
+    private static boolean opponentDeckHasScorch(GameState state, int opp)
+    {
+        for (CardDef card : state.db().deckPool(state.player(opp).faction()))
+        {
+            if (state.pool().contains(card) && (card.special() == SpecialType.SCORCH || (card.isUnit() && card.ability() == Ability.SCORCH)))
             {
                 return true;
             }

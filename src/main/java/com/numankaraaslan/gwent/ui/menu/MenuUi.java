@@ -60,7 +60,12 @@ final class MenuUi {
 
     /** "Back" to the main menu; also triggered by the Esc key. */
     static Button backButton(Navigator navigator) {
-        Button button = button("Back", new MenuAction(navigator, MenuAction.Target.MAIN_MENU), "menu-back");
+        return backButton(navigator, MenuAction.Target.MAIN_MENU);
+    }
+
+    /** "Back" to {@code target}; also triggered by the Esc key. */
+    static Button backButton(Navigator navigator, MenuAction.Target target) {
+        Button button = button("Back", new MenuAction(navigator, target), "menu-back");
         button.setCancelButton(true);
         return button;
     }

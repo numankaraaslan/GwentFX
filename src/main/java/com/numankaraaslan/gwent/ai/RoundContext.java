@@ -3,6 +3,7 @@ package com.numankaraaslan.gwent.ai;
 import com.numankaraaslan.gwent.engine.GameState;
 import com.numankaraaslan.gwent.engine.PlayerState;
 import com.numankaraaslan.gwent.engine.Rules;
+import com.numankaraaslan.gwent.model.CardPool;
 import com.numankaraaslan.gwent.model.Faction;
 
 /**
@@ -21,8 +22,11 @@ import com.numankaraaslan.gwent.model.Faction;
  * @param oppWinsTies the opponent wins tied rounds (Nilfgaard against a non-Nilfgaard AI)
  * @param startHand starting hand size of this game (for "don't spend more than half in round 1")
  * @param oppLeaderReady the opponent's active leader ability is still unused and not cancelled (public information)
+ * @param cardScale how strong the cards of this game are: the average unit strength of the card pool both decks are
+ *                  built from, divided by that of every card. Exactly 1 in Free Play, lower in Collector Mode (about 0.56
+ *                  with only the starter cards). Both players know the pool.
  */
-record RoundContext(int me, int opp, int myGems, int oppGems, int myScore, int oppScore, int myHand, int oppHand, boolean oppPassed, boolean iWinTies, boolean oppWinsTies, int startHand, boolean oppLeaderReady)
+record RoundContext(int me, int opp, int myGems, int oppGems, int myScore, int oppScore, int myHand, int oppHand, boolean oppPassed, boolean iWinTies, boolean oppWinsTies, int startHand, boolean oppLeaderReady, double cardScale)
 {
 
     static RoundContext of(GameState state, int me)
@@ -33,7 +37,17 @@ record RoundContext(int me, int opp, int myGems, int oppGems, int myScore, int o
         boolean iWinTies = mine.faction() == Faction.NILFGAARD && theirs.faction() != Faction.NILFGAARD;
         boolean oppWinsTies = theirs.faction() == Faction.NILFGAARD && mine.faction() != Faction.NILFGAARD;
         boolean oppLeaderReady = !theirs.leaderUsed() && !theirs.leaderDisabled() && !theirs.leader().isPassive();
-        return new RoundContext(me, opp, mine.gems(), theirs.gems(), Rules.score(state, me), Rules.score(state, opp), mine.hand().size(), theirs.hand().size(), theirs.passed(), iWinTies, oppWinsTies, state.settings().handSize(), oppLeaderReady);
+        double cardScale = state.pool().averageUnitStrength() / CardPool.full(state.db()).averageUnitStrength();
+        return new RoundContext(me, opp, mine.gems(), theirs.gems(), Rules.score(state, me), Rules.score(state, opp), mine.hand().size(), theirs.hand().size(), theirs.passed(), iWinTies, oppWinsTies, state.settings().handSize(), oppLeaderReady, cardScale);
+    }
+
+    /**
+     * A fixed amount of strength or card potential (a budget, a safe lead...), tuned for the full collection, adjusted to
+     * the cards of this game: with weaker cards, the same amount stands for more cards. Unchanged in Free Play.
+     */
+    double scaled(double amount)
+    {
+        return amount * cardScale;
     }
 
     /** My score minus the opponent's score. */
@@ -133,7 +147,7 @@ record RoundContext(int me, int opp, int myGems, int oppGems, int myScore, int o
         {
             return 0;
         }
-        return mustWin() ? 4 : 8;
+        return scaled(mustWin() ? 4 : 8);
     }
 
     /** In round 1, don't go below this many cards in hand. */

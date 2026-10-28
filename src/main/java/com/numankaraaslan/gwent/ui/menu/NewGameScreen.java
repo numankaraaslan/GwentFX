@@ -1,7 +1,6 @@
 package com.numankaraaslan.gwent.ui.menu;
 
 import com.numankaraaslan.gwent.model.CardDatabase;
-import com.numankaraaslan.gwent.model.CardDef;
 import com.numankaraaslan.gwent.model.Difficulty;
 import com.numankaraaslan.gwent.model.Faction;
 import com.numankaraaslan.gwent.model.GameSettings;
@@ -11,9 +10,12 @@ import com.numankaraaslan.gwent.ui.card.CardBackView;
 import com.numankaraaslan.gwent.ui.card.CardSize;
 import com.numankaraaslan.gwent.ui.card.Icons;
 import com.numankaraaslan.gwent.ui.card.LeaderView;
+import com.numankaraaslan.gwent.ui.mode.GameMode;
+import com.numankaraaslan.gwent.ui.mode.SetupLink;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.OptionalInt;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -26,6 +28,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.control.skin.ComboBoxListViewSkin;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
@@ -38,12 +41,13 @@ import javafx.scene.transform.Scale;
 import javafx.util.Callback;
 
 /**
- * Game setup on a single page. "Your faction" and "Your leader" are two equally wide drop-down lists, each with a big
+ * Game setup on a single page, for both game modes: the {@link GameMode} supplies the title, extra header buttons, the
+ * texts about the decks and the numbers on the difficulty buttons, and starts the game. "Your faction" and "Your leader" are two equally wide drop-down lists, each with a big
  * card tile under it (the faction's card back with its perk, the leader card with how its ability is used). Below them
  * the computer opponent with its difficulty and the rule options (starting hand, redraws). The right column explains the
  * leader: the chosen leader's ability, the one hovered in the leader list, or every possible leader for "Random"; it
  * scrolls when the text is long. "Start game" hands the resulting {@link GameSettings} to the navigator. The choices are
- * remembered for the rest of the session, so "New Game" reopens with them.
+ * remembered for the rest of the session (both modes share them), so the setup screens reopen with them.
  */
 public class NewGameScreen extends StackPane {
 
@@ -54,15 +58,15 @@ public class NewGameScreen extends StackPane {
     private static final double COMBO_ICON_SIZE = 28;
     private static final String SEPARATOR = "   •   ";
     private static final String DOT = " · ";
-    private static final String DECK_EXPLANATION = "Your deck holds every card of your faction plus all neutral cards, each as many times as it exists in the original game. Your hand is dealt from it at random.";
     private static final String ACTIVE_HINT = "During the battle, click your leader card to use the ability. It takes your turn, just like playing a card.";
     private static final String PASSIVE_HINT = "Works on its own for the whole game. There is nothing to click.";
     private static final String RANDOM_HINT = "One of the leaders listed on the right is picked when the game starts.";
 
-    /** The choices of the last visit; "New Game" reopens with them for the rest of the session. */
+    /** The choices of the last visit; the setup screens reopen with them for the rest of the session. */
     private static GameSettings remembered = GameSettings.defaults(Faction.NORTHERN_REALMS);
 
     private final Navigator navigator;
+    private final GameMode mode;
     private final CardDatabase db = CardDatabase.get();
     private final ComboBox<Choice<Faction>> factionBox = new ComboBox<>();
     private final ComboBox<Choice<LeaderDef>> leaderBox = new ComboBox<>();
@@ -93,9 +97,10 @@ public class NewGameScreen extends StackPane {
     /** True while code changes the leader list or its selection (its listener must not react). */
     private boolean updatingLeaders;
 
-    /** Builds the setup page, pre-filled with the choices of the last visit (or the original-game defaults). */
-    public NewGameScreen(Navigator navigator) {
+    /** Builds the setup page of {@code mode}, pre-filled with the choices of the last visit (or the original-game defaults). */
+    public NewGameScreen(Navigator navigator, GameMode mode) {
         this.navigator = navigator;
+        this.mode = mode;
         getStyleClass().addAll("screen", "ng-screen");
         fillOptions();
         VBox main = new VBox(buildPickRow(), buildSettingsRow(), MenuUi.vSpacer(), buildButtonBar());
@@ -116,9 +121,12 @@ public class NewGameScreen extends StackPane {
     // ------------------------------------------------------------------ layout
 
     private HBox buildHeader() {
-        Label title = MenuUi.label("New Game", "gw-heading", "menu-page-title");
-        Label subtitle = MenuUi.label("Choose your faction and leader, your opponent and the rules — then start the battle.", "menu-page-subtitle");
-        HBox header = new HBox(title, subtitle);
+        Label title = MenuUi.label(mode.title(), "gw-heading", "menu-page-title");
+        Label subtitle = MenuUi.label(mode.subtitle(), "menu-page-subtitle");
+        HBox header = new HBox(title, subtitle, MenuUi.hSpacer());
+        for (SetupLink link : mode.setupLinks(navigator)) {
+            header.getChildren().add(MenuUi.button(link.label(), new LinkAction(link), "ng-link"));
+        }
         header.getStyleClass().add("menu-header");
         return header;
     }
@@ -222,7 +230,7 @@ public class NewGameScreen extends StackPane {
         grid.getStyleClass().add("ng-grid");
         grid.addRow(0, fieldLabel("Starting hand"), handSizes);
         grid.addRow(1, fieldLabel("Redraws"), redraws);
-        return settingsPanel("Rules", grid, MenuUi.wrapping(DECK_EXPLANATION, "ng-note"));
+        return settingsPanel("Rules", grid, MenuUi.wrapping(mode.deckNote(), "ng-note"));
     }
 
     /** Heading, option grid and a note; the opponent and rules panels start equally wide and share the rest equally. */
@@ -267,12 +275,24 @@ public class NewGameScreen extends StackPane {
             redraws.add(count, String.valueOf(count), null);
         }
         for (Difficulty difficulty : Difficulty.values()) {
-            difficulties.add(difficulty, difficulty.displayName(), null);
+            OptionalInt left = mode.cardsLeft(difficulty);
+            ToggleButton button = difficulties.add(difficulty, difficulty.displayName(), left.isPresent() ? cardsLeftLine(left.getAsInt()) : null);
+            button.getStyleClass().add("ng-difficulty");
         }
         OptionChanged listener = new OptionChanged();
         handSizes.setOnChange(listener);
         redraws.setOnChange(listener);
         difficulties.setOnChange(listener);
+    }
+
+    /** The second line of a difficulty button: how many cards wins there can still unlock, "47 cards left" (dimmed at 0). */
+    private static HBox cardsLeftLine(int count) {
+        HBox line = new HBox(MenuUi.label(String.valueOf(count), "ng-cards-left-count"), MenuUi.label(count == 1 ? "card left" : "cards left", "ng-cards-left-text"));
+        line.getStyleClass().add("ng-cards-left");
+        if (count == 0) {
+            line.getStyleClass().add("ng-cards-left-done");
+        }
+        return line;
     }
 
     // ------------------------------------------------------------------ faction and leader tiles
@@ -283,18 +303,7 @@ public class NewGameScreen extends StackPane {
         factionCard.getChildren().setAll(new CardBackView(faction, PICK_CARD));
         factionName.setText(faction.displayName());
         factionPerk.setText(faction.abilityDescription());
-        factionDeck.setText("Deck: " + deckCount(faction) + " faction cards + " + deckCount(Faction.NEUTRAL) + " neutral cards");
-    }
-
-    /** Cards of {@code faction} in a deck: every copy counts, summoned tokens don't. */
-    private int deckCount(Faction faction) {
-        int count = 0;
-        for (CardDef card : db.cards(faction)) {
-            if (!card.token()) {
-                count += card.copies();
-            }
-        }
-        return count;
+        factionDeck.setText(mode.deckSummary(faction));
     }
 
     /** Shows the leader card (a card back with a question mark for "Random", null) and how its ability is used. */
@@ -637,12 +646,27 @@ public class NewGameScreen extends StackPane {
         }
     }
 
+    /** An extra header button of the game mode. */
+    private static final class LinkAction implements EventHandler<ActionEvent> {
+
+        private final SetupLink link;
+
+        LinkAction(SetupLink link) {
+            this.link = link;
+        }
+
+        @Override
+        public void handle(ActionEvent event) {
+            link.action().run();
+        }
+    }
+
     private final class StartAction implements EventHandler<ActionEvent> {
         @Override
         public void handle(ActionEvent event) {
             GameSettings settings = currentSettings();
             remembered = settings;
-            navigator.startGame(settings);
+            navigator.startGame(settings, mode);
         }
     }
 }

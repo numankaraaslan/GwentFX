@@ -3,23 +3,38 @@ package com.numankaraaslan.gwent.ui.game;
 import com.numankaraaslan.gwent.engine.GameState;
 import com.numankaraaslan.gwent.engine.RoundResult;
 import com.numankaraaslan.gwent.engine.snapshot.GameSnapshot;
+import com.numankaraaslan.gwent.model.CardDef;
+import com.numankaraaslan.gwent.ui.card.CardSize;
+import com.numankaraaslan.gwent.ui.card.CardView;
 import com.numankaraaslan.gwent.ui.card.Icons;
+import com.numankaraaslan.gwent.ui.mode.ResultNote;
 import java.util.List;
+import javafx.animation.ParallelTransition;
 import javafx.geometry.HPos;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
-/** The end of the game: Victory / Defeat / Draw, the score of every round and the ways to go on. */
+/**
+ * The end of the game: Victory / Defeat / Draw, what the game mode adds (the card a Collector Mode win unlocked, which
+ * pops in after a moment), the score of every round and the ways to go on.
+ */
 final class GameOverOverlay extends VBox {
 
     /** Width of each score table column ("Opponent" in the large table font must fit). */
     private static final double COLUMN_WIDTH = 175;
+    /** The mode's line wraps beyond this width. */
+    private static final double NOTE_WIDTH = 1100;
+    /** The unlocked cards appear this long after the result screen, growing from this scale. */
+    private static final double POP_DELAY = 300;
+    private static final double POP_DURATION = 450;
+    private static final double POP_START_SCALE = 0.6;
 
-    GameOverOverlay(GameSnapshot snapshot, Runnable playAgain, Runnable newGame, Runnable mainMenu) {
+    GameOverOverlay(GameSnapshot snapshot, ResultNote note, Runnable playAgain, Runnable newGame, Runnable mainMenu) {
         getStyleClass().addAll("gw-panel", "gm-game-dialog", "gm-game-over-dialog");
         setAlignment(Pos.TOP_CENTER);
         setSpacing(22);
@@ -37,7 +52,49 @@ final class GameOverOverlay extends VBox {
         }
         HBox buttons = new HBox(16, Layouts.button("Play again", true, playAgain), Layouts.button("New game", false, newGame), Layouts.button("Main menu", false, mainMenu));
         buttons.setAlignment(Pos.CENTER);
-        getChildren().addAll(heading, table(snapshot.results()), buttons);
+        getChildren().add(heading);
+        if (note != null) {
+            getChildren().add(noteBox(note));
+        }
+        getChildren().addAll(table(snapshot.results()), buttons);
+    }
+
+    /** The mode's part: its heading, its cards (large for one card, smaller for a Muster family) and its line of text. */
+    private static VBox noteBox(ResultNote note) {
+        VBox box = new VBox();
+        box.getStyleClass().add("gm-result-note-box");
+        box.setAlignment(Pos.TOP_CENTER);
+        if (note.title() != null) {
+            box.getChildren().add(Layouts.label(note.title(), "gm-unlock-title"));
+        }
+        if (!note.cards().isEmpty()) {
+            CardSize size = note.cards().size() == 1 ? CardSize.LARGE : CardSize.MEDIUM;
+            HBox cards = new HBox();
+            cards.getStyleClass().add("gm-unlock-cards");
+            cards.setAlignment(Pos.CENTER);
+            for (CardDef card : note.cards()) {
+                cards.getChildren().add(new CardView(card, size));
+            }
+            box.getChildren().add(cards);
+            popIn(cards);
+        }
+        if (note.text() != null) {
+            Label line = Layouts.label(note.text(), "gm-result-note");
+            line.setWrapText(true);
+            line.setMaxWidth(NOTE_WIDTH);
+            line.setMinHeight(Region.USE_PREF_SIZE);
+            box.getChildren().add(line);
+        }
+        return box;
+    }
+
+    /** Hidden at first, then grows and fades in once the result screen is up. */
+    private static void popIn(HBox cards) {
+        cards.setOpacity(0);
+        cards.setScaleX(POP_START_SCALE);
+        cards.setScaleY(POP_START_SCALE);
+        ParallelTransition pop = new ParallelTransition(Animations.scale(cards, POP_START_SCALE, 1, POP_DURATION), Animations.fade(cards, 0, 1, POP_DURATION));
+        Animations.delayed(pop, POP_DELAY).play();
     }
 
     private static GridPane table(List<RoundResult> results) {

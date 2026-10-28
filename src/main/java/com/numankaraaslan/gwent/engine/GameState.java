@@ -1,6 +1,7 @@
 package com.numankaraaslan.gwent.engine;
 
 import com.numankaraaslan.gwent.model.CardDatabase;
+import com.numankaraaslan.gwent.model.CardPool;
 import com.numankaraaslan.gwent.model.GameSettings;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +22,7 @@ public final class GameState {
 
     private final CardDatabase db;
     private final GameSettings settings;
+    private final CardPool pool;
     private final PlayerState[] players;
     private final List<CardInstance> weather = new ArrayList<>();
     private final List<RoundResult> results = new ArrayList<>();
@@ -32,9 +34,10 @@ public final class GameState {
     private GamePhase phase = GamePhase.SETUP;
     private int winner = UNDECIDED;
 
-    public GameState(CardDatabase db, GameSettings settings, PlayerState player0, PlayerState player1, Random random) {
+    public GameState(CardDatabase db, GameSettings settings, CardPool pool, PlayerState player0, PlayerState player1, Random random) {
         this.db = db;
         this.settings = settings;
+        this.pool = pool;
         this.players = new PlayerState[] {player0, player1};
         this.random = random;
     }
@@ -45,6 +48,11 @@ public final class GameState {
 
     public GameSettings settings() {
         return settings;
+    }
+
+    /** The cards both decks were built from. */
+    public CardPool pool() {
+        return pool;
     }
 
     public PlayerState player(int index) {
@@ -126,7 +134,7 @@ public final class GameState {
 
     /** Deep copy for AI look-ahead. The copy gets its own Random so simulations never disturb the real game. */
     public GameState copy() {
-        GameState copy = new GameState(db, settings, players[0].copy(), players[1].copy(), new Random());
+        GameState copy = new GameState(db, settings, pool, players[0].copy(), players[1].copy(), new Random());
         for (CardInstance card : weather) {
             copy.weather.add(card.copy());
         }

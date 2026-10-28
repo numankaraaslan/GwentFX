@@ -71,7 +71,7 @@ public class RulesScreen extends StackPane {
         addSection("Factions & perks", factionsSection());
         addSection("Leaders", leadersSection());
         addSection("Starting the game", startSection());
-        addSection("This version's options", optionsSection());
+        addSection("Game modes & options", optionsSection());
         addSection("Controls", controlsSection());
         StackPane frame = new StackPane(scroll);
         frame.getStyleClass().add("rules-frame");
@@ -264,6 +264,10 @@ public class RulesScreen extends StackPane {
     private List<Node> optionsSection() {
         List<Node> body = new ArrayList<>();
         body.add(paragraph(RulesText.OPTIONS_1));
+        body.add(paragraph(RulesText.OPTIONS_MODES));
+        body.add(bullet(RulesText.OPTIONS_FREE_PLAY));
+        body.add(bullet(RulesText.OPTIONS_COLLECTOR));
+        body.add(paragraph(RulesText.OPTIONS_SETTINGS));
         body.add(bullet(RulesText.OPTIONS_HAND));
         body.add(bullet(RulesText.OPTIONS_REDRAWS));
         body.add(bullet(RulesText.OPTIONS_DIFFICULTY));
