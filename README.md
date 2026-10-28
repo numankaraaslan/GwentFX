@@ -15,9 +15,17 @@ opponent makes its decisions.
 
 *The main menu.*
 
-![The setup screen](screenshots/new-game.jpg)
+![The Free Play setup screen](screenshots/new-game.jpg)
 
-*The setup screen: faction, leader, opponent and rules.*
+*The Free Play setup screen: faction, leader, opponent and rules.*
+
+![The Collector Mode setup screen](screenshots/collector-mode.jpg)
+
+*The same screen in Collector Mode: the cards you own, and how many cards each difficulty can still unlock.*
+
+![My Collection](screenshots/my-collection.jpg)
+
+*My Collection: the cards you own in Collector Mode.*
 
 ![Redrawing cards before the first round](screenshots/redraw.jpg)
 
