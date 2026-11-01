@@ -65,13 +65,13 @@
     -fx-stroke: rgba(243, 214, 144, 0.6);
 }
 
-/* ability can be used right now */
+/* ability can be used right now: the green of playable cards (the glow around it is .gm-leader-ready in game.css) */
 .leader-view:highlighted {
-    -fx-effect: dropshadow(gaussian, rgba(255, 221, 120, 0.95), 22, 0.5, 0, 0);
+    -fx-cursor: hand;
 }
 
 .leader-view:highlighted .card-ring {
-    -fx-stroke: #ffe08a;
+    -fx-stroke: #b4f08c;
     -fx-stroke-width: 2.5;
 }
 
@@ -101,7 +101,7 @@
 }
 
 .leader-view .leader-stamp .stamp-text {
-    -fx-fill: #eadfc8;
+    -fx-fill: #f6ecd6;
 }
 
 .leader-view .leader-stamp-cancelled {

@@ -86,7 +86,8 @@ java -jar target/GwentFX.jar
 - **Click** a card in your hand, then click one of the highlighted targets (a row, a horn slot, or a
   card for Decoy). Click the card again if it has only one possible target.
   Right-click or **Esc** cancels the selection.
-- Click your **leader** to use its ability once per game.
+- Click your **leader** to use its ability once per game. It glows green while you can use it, and a used leader
+  turns grey with a USED stamp.
 - **Hover** over any card to see its details on the right.
 - The **How to Play** screen in the main menu explains every ability, faction perk and special card.
   The **Card Gallery** shows every card.

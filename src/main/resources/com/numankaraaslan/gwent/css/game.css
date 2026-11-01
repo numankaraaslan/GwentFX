@@ -271,6 +271,13 @@
     -fx-translate-y: -8;
 }
 
+/* behind the leader card while its ability can be used: only the glow shows around the card, PlayerPanel pulses it */
+.gm-leader-ready {
+    -fx-background-color: #b4f08c;
+    -fx-background-radius: 9;
+    -fx-effect: dropshadow(gaussian, rgba(150, 235, 110, 0.9), 18, 0.45, 0, 0);
+}
+
 /* ---------------------------------------------------------------- weather zone */
 
 .gm-weather-zone {

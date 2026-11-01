@@ -27,6 +27,7 @@ import javafx.scene.layout.VBox;
  * name, the faction with the count of cards in hand under it, the total score badge (gold for the player who is ahead)
  * and, stacked on the right, the two round gems as big as the score badge. Glows while it is this player's turn, shows a
  * PASSED ribbon over the top of the leader after passing and a pulsing "Thinking..." note while the computer decides.
+ * A green glow pulses around the leader while its ability can be used.
  * (USED / CANCELLED stamps are drawn by the leader card itself.)
  */
 final class PlayerPanel extends Pane {
@@ -56,6 +57,8 @@ final class PlayerPanel extends Pane {
     private final int side;
     private final BoardInput input;
     private final StackPane leaderHolder = new StackPane();
+    /** Behind the leader card: its glow pulses while the ability can be used. */
+    private final Region leaderGlow = new Region();
     private final Label factionLabel = Layouts.label("", "gm-panel-faction");
     private final Label handLabel = Layouts.label("0", "gm-panel-count");
     private final HBox handBox;
@@ -71,6 +74,7 @@ final class PlayerPanel extends Pane {
     private int handCount = -1;
     private int score;
     private Animation thinkingPulse;
+    private Animation leaderPulse;
 
     PlayerPanel(int side, BoardInput input) {
         this.side = side;
@@ -79,13 +83,16 @@ final class PlayerPanel extends Pane {
         Layouts.fix(this, WIDTH, HEIGHT);
         leaderHolder.getStyleClass().add("gm-leader-holder");
         Layouts.place(leaderHolder, 14, 14, CardSize.MEDIUM.width(), CardSize.MEDIUM.height());
+        leaderGlow.getStyleClass().add("gm-leader-ready");
+        leaderGlow.setVisible(false);
+        leaderGlow.setMouseTransparent(true);
         passedStamp.setVisible(false);
         passedStamp.setMouseTransparent(true);
         thinkingLabel.setVisible(false);
         thinkingLabel.setMouseTransparent(true);
         StackPane.setAlignment(thinkingLabel, Pos.BOTTOM_CENTER);
         StackPane.setAlignment(passedStamp, Pos.TOP_CENTER);
-        leaderHolder.getChildren().addAll(passedStamp, thinkingLabel);
+        leaderHolder.getChildren().addAll(leaderGlow, passedStamp, thinkingLabel);
         Label nameLabel = Layouts.label(side == 0 ? "You" : "Opponent", "gm-panel-name");
         handLabel.setMinWidth(Region.USE_PREF_SIZE);
         handBox = new HBox(6, Icons.cards(HAND_ICON_SIZE), handLabel);
@@ -160,7 +167,8 @@ final class PlayerPanel extends Pane {
         leaderView = new LeaderView(def, CardSize.MEDIUM, true);
         leaderView.addEventHandler(MouseEvent.MOUSE_ENTERED, new LeaderHover());
         leaderView.addEventHandler(MouseEvent.MOUSE_CLICKED, new LeaderClick());
-        leaderHolder.getChildren().add(0, leaderView);
+        // above the glow, below the stamps
+        leaderHolder.getChildren().add(1, leaderView);
     }
 
     /** Swaps a gem icon; a lost gem bursts and fades over the dark one. */
@@ -178,10 +186,27 @@ final class PlayerPanel extends Pane {
         Animations.play(burst, new Animations.RemoveNode(old));
     }
 
-    /** Highlights the leader card (its ability can be used now). */
+    /** Highlights the leader card (its ability can be used now): green ring and a slowly pulsing glow around it. */
     void setLeaderHighlighted(boolean highlighted) {
         if (leaderView != null) {
             leaderView.setHighlighted(highlighted);
+        }
+        if (highlighted == leaderGlow.isVisible()) {
+            return;
+        }
+        leaderGlow.setVisible(highlighted);
+        if (leaderPulse != null) {
+            leaderPulse.stop();
+            leaderPulse = null;
+        }
+        if (highlighted) {
+            FadeTransition pulse = Animations.fade(leaderGlow, 1, 0.3, 900);
+            pulse.setAutoReverse(true);
+            pulse.setCycleCount(Animation.INDEFINITE);
+            leaderPulse = pulse;
+            pulse.play();
+        } else {
+            leaderGlow.setOpacity(1);
         }
     }
 

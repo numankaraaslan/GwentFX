@@ -492,7 +492,8 @@ final class EventAnimator implements EventPlayer {
             void body() {
                 render(ctx.snapshot);
                 FxBatch post = effects.batch();
-                effects.banner(post, leader.name(), leader.description(), side == 0 ? "gm-banner-leader-own" : "gm-banner-leader-enemy", 900);
+                // the opponent's stays longer: its ability text is news to you
+                effects.banner(post, leader.name(), leader.description(), side == 0 ? "gm-banner-leader-own" : "gm-banner-leader-enemy", side == 0 ? 900 : 1500);
                 post.play(ctx.done);
             }
         });

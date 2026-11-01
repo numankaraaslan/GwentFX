@@ -221,7 +221,7 @@ public class LeaderView extends StackPane {
         Text text = new Text(value);
         text.getStyleClass().add("stamp-text");
         text.setFill(Palette.TEXT);
-        text.setFont(CardFonts.display(Math.max(9, cardWidth * (value.length() > 5 ? 0.1 : 0.14))));
+        text.setFont(CardFonts.display(Math.max(9, cardWidth * (value.length() > 5 ? 0.12 : 0.18))));
         StackPane stamp = new StackPane(text);
         stamp.getStyleClass().add("leader-stamp");
         stamp.getStyleClass().add(styleClass);
