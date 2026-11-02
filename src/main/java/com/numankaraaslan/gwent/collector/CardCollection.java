@@ -3,6 +3,7 @@ package com.numankaraaslan.gwent.collector;
 import com.numankaraaslan.gwent.model.CardDatabase;
 import com.numankaraaslan.gwent.model.CardDef;
 import com.numankaraaslan.gwent.model.CardPool;
+import com.numankaraaslan.gwent.model.Faction;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -97,12 +98,45 @@ public final class CardCollection {
         return result;
     }
 
-    /** Unlocks a random reward of this tier that you don't own yet and returns it; null when you own them all. */
+    /**
+     * Unlocks a reward of this tier that you don't own yet and returns it; null when you own them all. It comes from the
+     * faction (neutral counts as one) that owns the smallest share of its rewards in this tier, so every faction grows at
+     * the same pace, whichever one you play. A tie between factions is broken at random, and the reward is picked at
+     * random from the faction's locked ones.
+     */
     public Reward unlockRandom(Tier tier, Random random) {
-        List<Reward> candidates = remaining(tier);
-        if (candidates.isEmpty()) {
+        List<List<Reward>> behind = new ArrayList<>();
+        int behindOwned = 0;
+        int behindTotal = 1;
+        for (Faction faction : Faction.values()) {
+            List<Reward> locked = new ArrayList<>();
+            int total = 0;
+            for (Reward reward : rewards) {
+                if (reward.tier() == tier && reward.faction() == faction) {
+                    total++;
+                    if (!ownsAll(reward)) {
+                        locked.add(reward);
+                    }
+                }
+            }
+            if (locked.isEmpty()) {
+                continue;
+            }
+            int owned = total - locked.size();
+            // owned / total against behindOwned / behindTotal, compared without fractions
+            if (behind.isEmpty() || owned * behindTotal < behindOwned * total) {
+                behind.clear();
+                behind.add(locked);
+                behindOwned = owned;
+                behindTotal = total;
+            } else if (owned * behindTotal == behindOwned * total) {
+                behind.add(locked);
+            }
+        }
+        if (behind.isEmpty()) {
             return null;
         }
+        List<Reward> candidates = behind.get(random.nextInt(behind.size()));
         Reward reward = candidates.get(random.nextInt(candidates.size()));
         for (CardDef card : reward.cards()) {
             unlocked.add(card.id());

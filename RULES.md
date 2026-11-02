@@ -95,7 +95,7 @@ pile. Weather cards go back to whoever played them.
 Collector Mode isn't in the original game; it brings back a little of its card collecting. There is still no deck
 building: both decks hold every card of their faction plus every neutral card, but only the cards you own, with all
 their copies. The computer plays with the same cards. You own the starter cards from the start, and every win
-unlocks one more card, picked at random from the tier of the difficulty you beat:
+unlocks one more card from the tier of the difficulty you beat:
 
 | Tier | Cards | Cards to win |
 | --- | --- | --- |
@@ -108,6 +108,10 @@ unlocks one more card, picked at random from the tier of the difficulty you beat
   Vampires, are won together as one card, in the highest tier of their members (Easy for both).
 - A win picks only from its own tier, never a lower one. Once a tier is complete, wins at that difficulty unlock
   nothing. Losses and draws unlock nothing.
+- The factions take turns, whichever one you play. The card comes from the faction (neutral counts as one) that owns
+  the smallest share of its cards in that tier, picked at random from its locked cards; a tie between factions is
+  broken at random. So the computer's faction never gets far ahead of yours by luck, and a collection that is uneven
+  evens out, since the factions behind get the next cards.
 - 97 wins unlock everything. With only the starter cards, a deck holds 31–37 cards, depending on the faction.
 - Weather cards are starter cards so that every leader ability works from the first game. Two passive leaders do
   nothing until their cards are won: Eredin Bréacc Glas: The Treacherous needs spies, and Emhyr var Emreis: Invader

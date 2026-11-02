@@ -1,6 +1,7 @@
 package com.numankaraaslan.gwent.collector;
 
 import com.numankaraaslan.gwent.model.CardDef;
+import com.numankaraaslan.gwent.model.Faction;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,6 +14,11 @@ import java.util.List;
  * @param tier  the difficulty whose wins unlock them; a family takes the highest tier of its cards
  */
 public record Reward(List<CardDef> cards, Tier tier) {
+
+    /** The faction of the cards; the cards of a family all belong to the same one. */
+    public Faction faction() {
+        return cards.get(0).faction();
+    }
 
     /** The card names, each with its number of copies when there are several: "Dol Blathanna Scout ×3". */
     public String describe() {

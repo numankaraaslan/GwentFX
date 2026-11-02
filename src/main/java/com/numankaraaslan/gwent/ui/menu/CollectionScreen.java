@@ -295,6 +295,7 @@ public class CollectionScreen extends StackPane {
         if (spyLeader != null && medicLeader != null) {
             box.getChildren().add(note("Two passive leaders need cards that are won on Normal or Hard: " + spyLeader.name() + " doubles the strength of spies, and " + medicLeader.name() + " makes Medics revive a random unit. Until spies or Medics are won, these two do nothing."));
         }
+        box.getChildren().add(note("The factions take turns: a win unlocks a card of the faction that owns the smallest share of that tier's cards, so they all grow at the same pace, whichever one you play."));
         box.getChildren().add(note("The computer's deck is built from the cards you own too, so its decks grow with yours."));
         box.getChildren().add(note("Your collection is saved in " + CollectionFile.path() + ", one card id per line. Deleting that file starts over, just like Reset progress."));
         return box;

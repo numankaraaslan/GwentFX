@@ -72,10 +72,10 @@ public final class CollectorMode implements GameMode {
     }
 
     /**
-     * A win unlocks a random card of the difficulty's tier and saves the collection; the result screen shows the card.
-     * The cards in the file are added first, in case another window has won some, and every save writes the whole
-     * collection, so a card whose save failed is saved again with the next win. A deleted file means the player started
-     * over.
+     * A win unlocks a card of the difficulty's tier, from the faction furthest behind, and saves the collection; the
+     * result screen shows the card. The cards in the file are added first, in case another window has won some, and
+     * every save writes the whole collection, so a card whose save failed is saved again with the next win. A deleted
+     * file means the player started over.
      */
     @Override
     public ResultNote gameEnded(GameSettings settings, int winner) {

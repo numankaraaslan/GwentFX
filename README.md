@@ -100,8 +100,9 @@ Both are started from the main menu.
 - **Free Play**: you and the computer play with every card.
 - **Collector Mode**: you start with the starter cards, units of strength 4 or less and the weather cards. Every win
   unlocks one random card with all its copies: a unit of strength 5 to 7 on Easy, a strong card on Normal (spies,
-  Medics, Scorch and Horn units, special cards, units of strength 8 or more), a hero on Hard. The computer plays with
-  the same cards you own. The difficulty buttons show how many cards each difficulty can still unlock, and
+  Medics, Scorch and Horn units, special cards, units of strength 8 or more), a hero on Hard. The factions take turns,
+  so they all grow at the same pace whichever one you play. The computer plays with the same cards you own. The
+  difficulty buttons show how many cards each difficulty can still unlock, and
   **My Collection** shows the cards you own. [RULES.md](RULES.md#collector-mode) has the details.
 
   Your collection is saved in `.gwentfx/collection.txt` in your home folder, one card id per line. **Reset progress**
