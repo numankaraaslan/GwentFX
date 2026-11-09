@@ -816,34 +816,34 @@
 
 .rules-text {
     -fx-font-family: "Georgia";
-    -fx-font-size: 21px;
+    -fx-font-size: 23px;
     -fx-fill: -gw-text;
 }
 
 .rules-strong {
     -fx-font-family: "Georgia";
-    -fx-font-size: 21px;
+    -fx-font-size: 23px;
     -fx-font-weight: bold;
     -fx-fill: -gw-gold-bright;
 }
 
 .rules-tip {
     -fx-font-family: "Georgia";
-    -fx-font-size: 19.5px;
+    -fx-font-size: 21px;
     -fx-font-style: italic;
     -fx-fill: -gw-text-dim;
 }
 
 .rules-tip-strong {
     -fx-font-family: "Georgia";
-    -fx-font-size: 19.5px;
+    -fx-font-size: 21px;
     -fx-font-style: italic;
     -fx-font-weight: bold;
     -fx-fill: -gw-gold;
 }
 
 .rules-flow {
-    -fx-line-spacing: 3;
+    -fx-line-spacing: 5;
 }
 
 .rules-callout {
@@ -868,7 +868,7 @@
 }
 
 .rules-bullet-dot {
-    -fx-font-size: 21px;
+    -fx-font-size: 23px;
     -fx-text-fill: -gw-gold;
 }
 
