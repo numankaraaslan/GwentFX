@@ -126,7 +126,7 @@ public class CollectionScreen extends StackPane {
 
     // ------------------------------------------------------------------ progress and reset
 
-    /** "Cards won: Easy 3/61, Normal 0/16, Hard 0/24" and "Reset progress", which is usable once something was won. */
+    /** "Cards won: Easy 3/44, Normal 0/16, Hard 0/24" and "Reset progress", which is usable once something was won. */
     private HBox buildProgress() {
         HBox progress = new HBox(MenuUi.label("Cards won", "collection-progress-title"));
         progress.getStyleClass().add("collection-progress");

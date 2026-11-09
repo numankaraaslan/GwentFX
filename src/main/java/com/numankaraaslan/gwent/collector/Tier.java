@@ -10,13 +10,15 @@ import com.numankaraaslan.gwent.model.SpecialType;
  * tier that matches the difficulty of the game: Easy, Normal or Hard.
  */
 public enum Tier {
-    STARTER("Starter", "Yours from the start: units of strength 4 or less (except spies, Medics, Avenger, Scorch and Horn units), Biting Frost, Impenetrable Fog and Torrential Rain."),
-    EASY("Easy", "Won on Easy: units of strength 5 to 7, spies and Medics below strength 8, Avenger units, Skellige Storm and Clear Weather."),
+    STARTER("Starter", "Yours from the start: units of strength 4 or less (except spies, Medics, Avenger, Scorch and Horn units), units of strength 5 without an ability, Biting Frost, Impenetrable Fog and Torrential Rain."),
+    EASY("Easy", "Won on Easy: the other units of strength 5 to 7, spies and Medics below strength 8, Avenger units, Skellige Storm and Clear Weather."),
     NORMAL("Normal", "Won on Normal: units of strength 8 or more, Scorch and Horn units, and the special cards."),
     HARD("Hard", "Won on Hard: the heroes.");
 
     /** Units up to this strength are starter cards (unless their ability makes them Easy or Normal). */
     private static final int STARTER_MAX_STRENGTH = 4;
+    /** Units without an ability are starter cards up to this strength. */
+    private static final int PLAIN_STARTER_MAX_STRENGTH = 5;
     /** Units from this strength on are Normal cards. */
     private static final int NORMAL_MIN_STRENGTH = 8;
 
@@ -41,7 +43,8 @@ public enum Tier {
      * The tier of a single card. Heroes are Hard. Biting Frost, Impenetrable Fog and Torrential Rain are starter cards, so
      * every leader ability works from the first game; the other weather cards are Easy. The other special cards are
      * Normal, and so are units with a Scorch or Horn ability and units of strength 8 or more. The remaining units are
-     * starter cards up to strength 4 and Easy above that, but spies, medics and Avenger units are always at least Easy.
+     * starter cards up to strength 4 (5 without an ability) and Easy above that, but spies, medics and Avenger units are
+     * always at least Easy.
      */
     public static Tier of(CardDef card) {
         if (card.hero()) {
@@ -54,6 +57,9 @@ public enum Tier {
             return NORMAL;
         }
         if (card.strength() <= STARTER_MAX_STRENGTH && !isWonOnEasyAtLeast(card)) {
+            return STARTER;
+        }
+        if (card.strength() <= PLAIN_STARTER_MAX_STRENGTH && card.ability() == Ability.NONE) {
             return STARTER;
         }
         return EASY;

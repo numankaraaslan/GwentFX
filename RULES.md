@@ -99,8 +99,8 @@ unlocks one more card from the tier of the difficulty you beat:
 
 | Tier | Cards | Cards to win |
 | --- | --- | --- |
-| Starter | Units of strength 4 or less, except spies, Medics, Avenger, Scorch and Horn units. Biting Frost, Impenetrable Fog and Torrential Rain. | owned from the start |
-| Easy | Units of strength 5 to 7. Spies and Medics below strength 8. The Avenger units, Kambi and Cow. Skellige Storm and Clear Weather. | 61 |
+| Starter | Units of strength 4 or less, except spies, Medics, Avenger, Scorch and Horn units. Units of strength 5 without an ability. Biting Frost, Impenetrable Fog and Torrential Rain. | owned from the start |
+| Easy | The other units of strength 5 to 7. Spies and Medics below strength 8. The Avenger units, Kambi and Cow. Skellige Storm and Clear Weather. | 44 |
 | Normal | Units of strength 8 or more. Scorch units (row scorch included) and Horn units of any strength. The special cards: Commander's Horn, Decoy, Scorch, Mardroeme. | 16 |
 | Hard | Heroes, whatever their ability. | 24 |
 
@@ -112,7 +112,7 @@ unlocks one more card from the tier of the difficulty you beat:
   the smallest share of its cards in that tier, picked at random from its locked cards; a tie between factions is
   broken at random. So the computer's faction never gets far ahead of yours by luck, and a collection that is uneven
   evens out, since the factions behind get the next cards.
-- 101 wins unlock everything. With only the starter cards, a deck holds 24–30 cards, depending on the faction.
+- 84 wins unlock everything. With only the starter cards, a deck holds 31–39 cards, depending on the faction.
 - Biting Frost, Impenetrable Fog and Torrential Rain are starter cards so that every leader ability works from the
   first game. Two passive leaders do nothing until their cards are won: Eredin Bréacc Glas: The Treacherous needs
   spies, and Emhyr var Emreis: Invader of the North needs Medics.

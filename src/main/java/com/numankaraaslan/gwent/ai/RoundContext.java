@@ -23,7 +23,7 @@ import com.numankaraaslan.gwent.model.Faction;
  * @param startHand starting hand size of this game (for "don't spend more than half in round 1")
  * @param oppLeaderReady the opponent's active leader ability is still unused and not cancelled (public information)
  * @param cardScale how strong the cards of this game are: the average unit strength of the card pool both decks are
- *                  built from, divided by that of every card. Exactly 1 in Free Play, lower in Collector Mode (about 0.57
+ *                  built from, divided by that of every card. Exactly 1 in Free Play, lower in Collector Mode (about 0.67
  *                  with only the starter cards). Both players know the pool.
  */
 record RoundContext(int me, int opp, int myGems, int oppGems, int myScore, int oppScore, int myHand, int oppHand, boolean oppPassed, boolean iWinTies, boolean oppWinsTies, int startHand, boolean oppLeaderReady, double cardScale)

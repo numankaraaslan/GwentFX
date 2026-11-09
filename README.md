@@ -98,10 +98,11 @@ java -jar target/GwentFX.jar
 Both are started from the main menu.
 
 - **Free Play**: you and the computer play with every card.
-- **Collector Mode**: you start with the starter cards, units of strength 4 or less, Biting Frost, Impenetrable Fog
-  and Torrential Rain. Every win unlocks one random card with all its copies: a unit of strength 5 to 7, a spy or
-  Medic below strength 8, an Avenger unit, Skellige Storm or Clear Weather on Easy, a strong card on Normal (Scorch
-  and Horn units, special cards, units of strength 8 or more), a hero on Hard. The factions take turns,
+- **Collector Mode**: you start with the starter cards, units of strength 4 or less, units of strength 5 without an
+  ability, Biting Frost, Impenetrable Fog and Torrential Rain. Every win unlocks one random card with all its copies:
+  another unit of strength 5 to 7, a spy or Medic below strength 8, an Avenger unit, Skellige Storm or Clear Weather
+  on Easy, a strong card on Normal (Scorch and Horn units, special cards, units of strength 8 or more), a hero on
+  Hard. The factions take turns,
   so they all grow at the same pace whichever one you play. The computer plays with the same cards you own. The
   difficulty buttons show how many cards each difficulty can still unlock, and
   **My Collection** shows the cards you own. [RULES.md](RULES.md#collector-mode) has the details.

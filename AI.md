@@ -123,7 +123,7 @@ On **Hard**, a move also loses points if it piles strength where a Scorch would 
 | Weather card | 4 (Clear Weather: 3) |
 
 The average card in a full deck is worth about 6.5–8, depending on the faction. With only Collector Mode's starter
-cards, it's about 5.0–6.1.
+cards, it's about 5–6.
 
 ### Example
 
@@ -289,10 +289,10 @@ for Skellige, Clan Dimun Pirate is in it. That happens in Collector Mode until o
 ## Collector Mode
 
 In Collector Mode both decks are built from the cards you own, so in your first games they hold only the starter
-cards: units of strength 4 or less, Biting Frost, Impenetrable Fog and Torrential Rain. The card values need no
-change, since they come from the cards themselves, and a drawn card counts as the average card left in the AI's own
-deck. But the fixed amounts in step 3 were tuned for the full collection. A lead of 25 is about 5 average units of the full collection, but 9 starter
-units.
+cards: units of strength 4 or less, units of strength 5 without an ability, Biting Frost, Impenetrable Fog and
+Torrential Rain. The card values need no change, since they come from the cards themselves, and a drawn card counts
+as the average card left in the AI's own deck. But the fixed amounts in step 3 were tuned for the full collection. A
+lead of 25 is about 5 average units of the full collection, but 8 starter units.
 
 So the AI multiplies those amounts by the **card scale** (`RoundContext.cardScale`): the average strength of the
 units both decks are built from, divided by that of all units. You know these cards too: they are your collection.
@@ -300,12 +300,12 @@ units both decks are built from, divided by that of all units. You know these ca
 | Cards owned | Card scale |
 | --- | --- |
 | Every card (Free Play) | 1, so nothing changes |
-| Starter cards only | 0.57 (average unit strength 2.76 instead of 4.82) |
+| Starter cards only | 0.67 (average unit strength 3.25 instead of 4.82) |
 | Starter + every Easy card | 0.81 |
 | Starter + every Easy and Normal card | 0.87 |
 
-With only the starter cards, the round 1 budgets become 4.6 instead of 8, the safe lead in a must-win round 14 instead
-of 25, and the leader ability is worth 4.6 instead of 8.
+With only the starter cards, the round 1 budgets become 5.4 instead of 8, the safe lead in a must-win round 17 instead
+of 25, and the leader ability is worth 5.4 instead of 8.
 
 - **Scaled:** the spending budgets (8, 8 and 10), the safe leads (25 and 15), the score needed to play on in round 1
   (2), the least potential of a saving move (5), Easy's passing lead (6) and the leader's value (8 and 4).
