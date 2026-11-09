@@ -1,11 +1,17 @@
 package com.numankaraaslan.gwent.ui;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Skin;
 import javafx.scene.input.ScrollEvent;
 
-/** Scroll helpers shared by the menus and the game: faster mouse-wheel scrolling and scrolling to a content position. */
+/**
+ * Scroll helpers shared by the menus and the game: sharp text, faster mouse-wheel scrolling and scrolling to a content
+ * position.
+ */
 public final class ScrollSupport
 {
 
@@ -14,6 +20,26 @@ public final class ScrollSupport
 
     private ScrollSupport()
     {
+    }
+
+    /**
+     * Draws the pane's content directly instead of from a cached image. The JavaFX scroll pane caches what it shows, and
+     * that image is then scaled with the 1920x1080 canvas, which blurs the text whenever the window has another size.
+     */
+    public static void keepTextSharp(ScrollPane pane)
+    {
+        pane.skinProperty().addListener(new NoViewportCache(pane));
+        turnOffViewportCache(pane);
+    }
+
+    /** Turns off the cache of the skin's viewport, if the skin is there yet. */
+    private static void turnOffViewportCache(ScrollPane pane)
+    {
+        Node viewport = pane.lookup(".viewport");
+        if (viewport != null)
+        {
+            viewport.setCache(false);
+        }
     }
 
     /** Makes the mouse wheel scroll {@link #SCROLL_SPEED} times further in this pane (vertical scrolling). */
@@ -56,6 +82,24 @@ public final class ScrollSupport
             return 0;
         }
         return content.getLayoutBounds().getHeight() - pane.getViewportBounds().getHeight();
+    }
+
+    /** Turns off the viewport cache of every skin the pane gets (the skin is created once the pane is shown). */
+    private static final class NoViewportCache implements ChangeListener<Skin<?>>
+    {
+
+        private final ScrollPane pane;
+
+        NoViewportCache(ScrollPane pane)
+        {
+            this.pane = pane;
+        }
+
+        @Override
+        public void changed(ObservableValue<? extends Skin<?>> observable, Skin<?> oldValue, Skin<?> newValue)
+        {
+            turnOffViewportCache(pane);
+        }
     }
 
     /** Mouse-wheel handler that scrolls {@link #SCROLL_SPEED} times further than the default. */

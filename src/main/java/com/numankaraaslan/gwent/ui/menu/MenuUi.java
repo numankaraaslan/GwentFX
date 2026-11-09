@@ -21,7 +21,7 @@ import javafx.scene.layout.VBox;
 
 /**
  * Small building blocks shared by the menu screens: styled labels and buttons, fixed-size icon boxes, layout fillers,
- * leader caption texts and a scroll pane that scrolls long pages faster.
+ * leader caption texts and a scroll pane that scrolls long pages faster and keeps its text sharp.
  */
 final class MenuUi {
 
@@ -136,6 +136,7 @@ final class MenuUi {
         pane.setHbarPolicy(ScrollBarPolicy.NEVER);
         pane.setVbarPolicy(ScrollBarPolicy.AS_NEEDED);
         ScrollSupport.installFastScroll(pane);
+        ScrollSupport.keepTextSharp(pane);
         return pane;
     }
 }

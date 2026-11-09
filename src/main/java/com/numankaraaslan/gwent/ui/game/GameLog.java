@@ -1,5 +1,6 @@
 package com.numankaraaslan.gwent.ui.game;
 
+import com.numankaraaslan.gwent.ui.ScrollSupport;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.Label;
@@ -24,6 +25,7 @@ final class GameLog extends VBox {
         scroll.setFitToWidth(true);
         scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        ScrollSupport.keepTextSharp(scroll);
         VBox.setVgrow(scroll, Priority.ALWAYS);
         entries.heightProperty().addListener(new StickToBottom());
         getChildren().addAll(Layouts.label("Game log", "gm-zone-caption"), scroll);

@@ -97,6 +97,7 @@ final class CardGridOverlay extends VBox {
         scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scroll.setVbarPolicy(rows > visibleRows ? ScrollPane.ScrollBarPolicy.ALWAYS : ScrollPane.ScrollBarPolicy.NEVER);
         ScrollSupport.installFastScroll(scroll);
+        ScrollSupport.keepTextSharp(scroll);
         scroll.setPrefViewportWidth(gridWidth + GRID_PADDING * 2);
         scroll.setPrefViewportHeight(gridHeight + GRID_PADDING * 2);
         scroll.setMaxWidth(Region.USE_PREF_SIZE);
