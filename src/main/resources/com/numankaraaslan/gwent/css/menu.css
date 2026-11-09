@@ -703,14 +703,24 @@
     -fx-padding: 4 14 4 14;
 }
 
-.collection-reset {
-    -fx-spacing: 12;
-    -fx-alignment: center-right;
+.collection-reset-dialog {
+    -fx-spacing: 20;
+    -fx-alignment: center;
+    -fx-padding: 28 44 28 44;
 }
 
 .collection-reset-text {
-    -fx-font-size: 19px;
+    -fx-font-size: 24px;
     -fx-text-fill: -gw-text;
+    -fx-text-alignment: center;
+    -fx-alignment: center;
+    -fx-pref-width: 600;
+    -fx-max-width: 600;
+}
+
+.collection-reset-buttons {
+    -fx-spacing: 16;
+    -fx-alignment: center;
 }
 
 .collection-button {

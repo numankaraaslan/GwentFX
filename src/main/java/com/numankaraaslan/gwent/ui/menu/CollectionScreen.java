@@ -38,7 +38,7 @@ import javafx.scene.layout.VBox;
  * My Collection (Collector Mode), laid out like the card gallery: one tab per faction plus "Neutral & Special". A tab
  * shows the faction's cards grouped by how they are won: the starter cards, then the Easy, Normal and Hard rewards.
  * Cards you don't own yet are greyed out, and notes on how unlocking works end every tab. Under the tabs: how many cards
- * each difficulty has given so far, and "Reset progress" (it asks first). Hovering a card shows it large on the right;
+ * each difficulty has given so far, and "Reset progress" (a popup asks first). Hovering a card shows it large on the right;
  * clicking keeps it there. Back leads to the Collector Mode setup screen.
  */
 public class CollectionScreen extends StackPane {
@@ -59,9 +59,11 @@ public class CollectionScreen extends StackPane {
     private final ScrollPane scroll = MenuUi.scrollPane(new VBox());
     private final Map<Faction, Node> pages = new EnumMap<>(Faction.class);
     private final CardInfoPanel infoPanel = new CardInfoPanel();
-    /** Right end of the progress line: "Reset progress", or the question that confirms it. */
-    private final HBox resetBox = new HBox();
     private final CardCollection collection;
+    private Button back;
+    /** The popup that confirms a reset, with its Cancel button; null while it is closed. */
+    private StackPane resetPopup;
+    private Button resetCancel;
     private CardTile pinnedTile;
     private CardDef pinnedCard;
 
@@ -100,7 +102,8 @@ public class CollectionScreen extends StackPane {
     private HBox buildHeader() {
         Label title = MenuUi.label("My Collection", "gw-heading", "menu-page-title");
         Label subtitle = MenuUi.label("The cards you play with in Collector Mode — and so does the computer", "menu-page-subtitle");
-        HBox header = new HBox(title, subtitle, MenuUi.hSpacer(), MenuUi.backButton(navigator, MenuAction.Target.COLLECTOR_MODE));
+        back = MenuUi.backButton(navigator, MenuAction.Target.COLLECTOR_MODE);
+        HBox header = new HBox(title, subtitle, MenuUi.hSpacer(), back);
         header.getStyleClass().add("menu-header");
         return header;
     }
@@ -123,7 +126,7 @@ public class CollectionScreen extends StackPane {
 
     // ------------------------------------------------------------------ progress and reset
 
-    /** "Cards won: Easy 3/47, Normal 0/26, Hard 0/24" and "Reset progress". */
+    /** "Cards won: Easy 3/61, Normal 0/16, Hard 0/24" and "Reset progress", which is usable once something was won. */
     private HBox buildProgress() {
         HBox progress = new HBox(MenuUi.label("Cards won", "collection-progress-title"));
         progress.getStyleClass().add("collection-progress");
@@ -132,9 +135,9 @@ public class CollectionScreen extends StackPane {
             int won = total - collection.remaining(tier).size();
             progress.getChildren().add(MenuUi.label(tier.displayName() + "  " + won + "/" + total, "collection-chip"));
         }
-        resetBox.getStyleClass().add("collection-reset");
-        showResetButton();
-        progress.getChildren().addAll(MenuUi.hSpacer(), resetBox);
+        Button reset = MenuUi.button("Reset progress", new ResetAsk(), "collection-button");
+        reset.setDisable(wonCount() == 0);
+        progress.getChildren().addAll(MenuUi.hSpacer(), reset);
         return progress;
     }
 
@@ -147,27 +150,42 @@ public class CollectionScreen extends StackPane {
         return won;
     }
 
-    /** "Reset progress": usable once something was won. */
-    private void showResetButton() {
-        Button reset = MenuUi.button("Reset progress", new ResetAsk(), "collection-button");
-        reset.setDisable(wonCount() == 0);
-        resetBox.getChildren().setAll(reset);
+    /**
+     * Asks in a popup before anything is removed. Its buttons are far from "Reset progress", so a double click can't
+     * confirm it. Cancel has the focus, and Esc means Cancel instead of Back while the popup is open.
+     */
+    private void showResetPopup() {
+        if (resetPopup != null) {
+            return;
+        }
+        int won = wonCount();
+        String cards = won == 1 ? "the card" : "the " + won + " cards";
+        Label text = MenuUi.wrapping("This removes " + cards + " you have won, and you start over with only the starter cards. This can't be undone.", "collection-reset-text");
+        resetCancel = MenuUi.button("Cancel", new ResetCancelled(), "collection-button", "gw-button-primary");
+        Button confirm = MenuUi.button("Reset", new ResetConfirmed(), "collection-button");
+        HBox buttons = new HBox(resetCancel, confirm);
+        buttons.getStyleClass().add("collection-reset-buttons");
+        VBox panel = new VBox(MenuUi.label("Reset progress?", "gw-heading"), text, buttons);
+        panel.getStyleClass().addAll("gw-panel", "collection-reset-dialog");
+        panel.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
+        resetPopup = new StackPane(panel);
+        resetPopup.getStyleClass().add("gw-overlay");
+        getChildren().add(resetPopup);
+        back.setCancelButton(false);
+        resetCancel.setCancelButton(true);
+        resetCancel.requestFocus();
     }
 
-    /** Asks before anything is removed. */
-    private void showResetQuestion() {
-        int won = wonCount();
-        String question = "Remove the " + won + " cards you have won and start over?";
-        if (won == 1) {
-            question = "Remove the card you have won and start over?";
-        }
-        Button yes = MenuUi.button("Reset", new ResetConfirmed(), "collection-button");
-        Button no = MenuUi.button("Cancel", new ResetCancelled(), "collection-button");
-        resetBox.getChildren().setAll(MenuUi.label(question, "collection-reset-text"), yes, no);
+    private void closeResetPopup() {
+        resetCancel.setCancelButton(false);
+        getChildren().remove(resetPopup);
+        resetPopup = null;
+        back.setCancelButton(true);
     }
 
     /** Empties the save file and reopens the screen with the starter cards only. */
     private void reset() {
+        closeResetPopup();
         CollectionFile.save(CardCollection.of(db, Collections.emptySet()));
         navigator.showCollection();
     }
@@ -405,7 +423,7 @@ public class CollectionScreen extends StackPane {
     private final class ResetAsk implements EventHandler<ActionEvent> {
         @Override
         public void handle(ActionEvent event) {
-            showResetQuestion();
+            showResetPopup();
         }
     }
 
@@ -419,7 +437,7 @@ public class CollectionScreen extends StackPane {
     private final class ResetCancelled implements EventHandler<ActionEvent> {
         @Override
         public void handle(ActionEvent event) {
-            showResetButton();
+            closeResetPopup();
         }
     }
 }
