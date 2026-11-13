@@ -31,6 +31,7 @@ below are the current values in that code.
 | [`MoveSimulator.java`](src/main/java/com/numankaraaslan/gwent/ai/MoveSimulator.java) | Plays each possible move on a copy of the game and measures the result. |
 | [`MoveEval.java`](src/main/java/com/numankaraaslan/gwent/ai/MoveEval.java) | The measured result of one move. |
 | [`CardValues.java`](src/main/java/com/numankaraaslan/gwent/ai/CardValues.java) | How much each card is worth keeping in hand. |
+| [`WeatherMatchup.java`](src/main/java/com/numankaraaslan/gwent/ai/WeatherMatchup.java) | What its weather cards are worth at the redraw, given both factions and leaders. |
 | [`RoundContext.java`](src/main/java/com/numankaraaslan/gwent/ai/RoundContext.java) | The state of the round: gems, totals, hand sizes, who has passed, who wins ties. |
 | [`ChoicePolicy.java`](src/main/java/com/numankaraaslan/gwent/ai/ChoicePolicy.java) | Choices in the middle of a move: Medic target, weather from the deck, discards, agile rows. |
 | [`SimulationDecider.java`](src/main/java/com/numankaraaslan/gwent/ai/SimulationDecider.java) | Makes those choices instantly inside simulations, using `ChoicePolicy`. |
@@ -120,7 +121,7 @@ On **Hard**, a move also loses points if it piles strength where a Scorch would 
 | Commander's Horn card | 8 |
 | Decoy, Scorch card | 6 |
 | Mardroeme card | 7 if it has berserkers, otherwise 2 |
-| Weather card | 4 (Clear Weather: 3) |
+| Weather card | 4 (Clear Weather: 3); at the redraw, its value in this matchup (see [Other decisions](#other-decisions)) |
 
 The average card in a full deck is worth about 6.5–8, depending on the faction. With only Collector Mode's starter
 cards, it's about 5–6.
@@ -319,10 +320,45 @@ value, except:
 
 - an extra copy of a muster group counts as 0.5. When the kept copy is played, it pulls in the swapped one from the
   deck too, so the swap costs nothing;
-- a second copy of the same weather card counts as 1, and a third or later weather card at most 2.
+- a weather card counts at its value in this matchup (below);
+- a second copy of the same weather card counts as 1, and a third or later weather card at most 2. The most valuable
+  weather cards are counted first, so these limits hit the least useful ones.
 
-If the lowest value is more than 0.5 below the average card left in its deck, it swaps that card. The engine asks
-again after each swap, until the AI stops or runs out of redraws.
+If the lowest value is more than 0.5 below the average card left in its deck (its weather cards valued the same way),
+it swaps that card. The engine asks again after each swap, until the AI stops or runs out of redraws.
+
+**Weather in this matchup** (`WeatherMatchup`, only used at the redraw). A weather card weakens a row on both sides, so
+it only helps the AI when your deck relies on that row more than its own deck does. Both decks are known from the
+factions: every card of the faction plus every neutral card in the card pool. A row's **share** is the part of a
+deck's unit strength in that row, counting only the units weather weakens on their owner's side: no heroes, no spies.
+An agile unit counts half in each of its rows. With every card (Free Play):
+
+| Deck | Close | Ranged | Siege |
+| --- | --- | --- | --- |
+| Northern Realms | 34% | 32% | 34% |
+| Nilfgaard | 43% | 42% | 16% |
+| Scoia'tael | 57% | 38% | 5% |
+| Monsters | 67% | 20% | 13% |
+| Skellige | 53% | 33% | 14% |
+
+- **Biting Frost, Impenetrable Fog, Torrential Rain, Skellige Storm:** 4 + 10 × (your share of the rows it hits − the
+  AI's share of them), between 1 and 8. King Bran halves the shares of his side. When both sides play the same
+  faction, every weather card stays at 4, unless only one of them has King Bran.
+- **Clear Weather:** 3, plus 10 × how much more the worst weather card your leader can play from your deck would hit
+  the AI than you (nothing if it would hit you more), at most 8. That applies to Foltest: King of Temeria, Emhyr var
+  Emreis: His Imperial Majesty, Francesca Findabair: Pureblood Elf and Eredin: King of the Wild Hunt while their
+  ability is unused and not cancelled. Otherwise it stays at 3.
+
+| AI | You | Biting Frost | Impenetrable Fog | Torrential Rain | Skellige Storm |
+| --- | --- | --- | --- | --- | --- |
+| Northern Realms | Monsters | 7.3 | 2.7 | 2.0 | 1.0 |
+| Monsters | Northern Realms | 1.0 | 5.3 | 6.0 | 7.3 |
+| Scoia'tael | Northern Realms | 1.8 | 3.4 | 6.8 | 6.2 |
+| Nilfgaard | Scoia'tael | 5.4 | 3.7 | 3.0 | 2.6 |
+
+So a Northern Realms AI against your Monsters keeps Biting Frost and throws back Skellige Storm first. Its Clear
+Weather is worth 6.3 against Eredin: King of the Wild Hunt, whose best pick, Skellige Storm, would hit 66% of its
+deck's strength and 33% of yours, and 4.8 against Emhyr var Emreis: His Imperial Majesty's Torrential Rain.
 
 **Choices during a move** (`ChoicePolicy`). The same rules are used inside the simulations:
 
@@ -348,7 +384,8 @@ It plays fair:
 - It knows its own hand and which cards are left in its own deck, but not their order: the simulations shuffle the
   decks.
 - It knows which cards the decks are built from: every card in Free Play, your collection in Collector Mode. It
-  doesn't know which of them you hold.
+  doesn't know which of them you hold. With your faction, this tells it which rows your deck relies on, which it uses
+  to value its weather cards at the redraw.
 - It never looks at your hand or your deck. The one exception: when its leader, Emperor of Nilfgaard, shows it 3
   cards from your hand, it remembers them. Hard uses this to watch for a Scorch.
 
@@ -368,6 +405,7 @@ It plays fair:
 | The pauses | constants at the top of `AiController` |
 | Easy's randomness, Hard's Scorch risk, spending budgets, safe leads | constants at the top of `AiBrain` (below) |
 | What cards are worth | `CardValues.keepValue` and `CardValues.playCost` |
+| What weather cards are worth at the redraw | the constants at the top of `WeatherMatchup`: `SHARE_WEIGHT` (10), `MIN_VALUE` (1), `MAX_VALUE` (8) |
 | How much saving cards matters, the leader's value, the round 1 hand floor | `RoundContext.conserve`, `leaderValue`, `roundOneHandFloor` |
 | How the amounts shrink with weaker cards | `RoundContext.cardScale` and `scaled` |
 | Choices during a move | `ChoicePolicy` |

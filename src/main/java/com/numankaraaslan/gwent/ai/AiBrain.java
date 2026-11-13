@@ -13,6 +13,8 @@ import com.numankaraaslan.gwent.model.Difficulty;
 import com.numankaraaslan.gwent.model.RowType;
 import com.numankaraaslan.gwent.model.SpecialType;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -708,6 +710,7 @@ final class AiBrain
     /**
      * Redraw: swap the least useful card if it's clearly worse than an average card from the deck. Extra copies of a
      * muster group are swapped first: they still come out with the muster from the deck, so the swap is free value.
+     * Weather cards, in the hand and in the deck, are valued for this matchup ({@link WeatherMatchup}).
      */
     int chooseRedraw(GameState state, int me, int redrawsLeft)
     {
@@ -716,10 +719,10 @@ final class AiBrain
             return -1;
         }
         PlayerState player = state.player(me);
-        double average = CardValues.averageDeckValue(state, me);
+        WeatherMatchup matchup = WeatherMatchup.of(state, me);
+        double average = averageRedrawValue(state, me, matchup);
         Set<Integer> pulledByOthers = musterDuplicates(player.hand());
-        Map<SpecialType, Integer> weatherCount = new HashMap<>();
-        int weatherTotal = 0;
+        Map<Integer, Double> weatherValues = weatherRedrawValues(player.hand(), matchup);
         CardInstance worst = null;
         double worstValue = Double.MAX_VALUE;
         for (CardInstance card : player.hand())
@@ -729,21 +732,10 @@ final class AiBrain
             {
                 value = 0.5;
             }
-            if (card.def().isWeather())
+            Double weather = weatherValues.get(card.id());
+            if (weather != null)
             {
-                SpecialType type = card.def().special();
-                Integer seen = weatherCount.get(type);
-                int count = seen == null ? 1 : seen + 1;
-                weatherCount.put(type, count);
-                weatherTotal++;
-                if (count > 1)
-                {
-                    value = 1;
-                }
-                else if (weatherTotal > 2)
-                {
-                    value = Math.min(value, 2);
-                }
+                value = weather;
             }
             if (value < worstValue)
             {
@@ -756,6 +748,58 @@ final class AiBrain
             return worst.id();
         }
         return -1;
+    }
+
+    /** Average redraw value of the cards left in the AI's deck: their keep value, weather cards valued for this matchup. */
+    private static double averageRedrawValue(GameState state, int me, WeatherMatchup matchup)
+    {
+        List<CardInstance> deck = state.player(me).deck();
+        if (deck.isEmpty())
+        {
+            return 0;
+        }
+        double total = 0;
+        for (CardInstance card : deck)
+        {
+            total += card.def().isWeather() ? matchup.value(card.def()) : CardValues.keepValue(state, me, card);
+        }
+        return total / deck.size();
+    }
+
+    /**
+     * Redraw values of the weather cards in the hand, by card id: their value for this matchup, except that a second copy
+     * of the same weather card counts as 1 and a third or later weather card at most 2. The most valuable ones are
+     * counted first, so these limits hit the least useful ones.
+     */
+    private static Map<Integer, Double> weatherRedrawValues(List<CardInstance> hand, WeatherMatchup matchup)
+    {
+        List<ValuedCard> weather = new ArrayList<>();
+        for (CardInstance card : hand)
+        {
+            if (card.def().isWeather())
+            {
+                weather.add(new ValuedCard(card, matchup.value(card.def())));
+            }
+        }
+        Collections.sort(weather, new MostValuableFirst());
+        Map<Integer, Double> values = new HashMap<>();
+        Set<SpecialType> seen = new HashSet<>();
+        int count = 0;
+        for (ValuedCard entry : weather)
+        {
+            double value = entry.value();
+            count++;
+            if (!seen.add(entry.card().def().special()))
+            {
+                value = 1;
+            }
+            else if (count > 2)
+            {
+                value = Math.min(value, 2);
+            }
+            values.put(entry.card().id(), value);
+        }
+        return values;
     }
 
     /** Hand cards that another (kept) hand card will muster anyway: all but one card of each muster group. */
@@ -797,6 +841,21 @@ final class AiBrain
         for (CardSnapshot card : cards)
         {
             revealed.put(card.id(), card.def());
+        }
+    }
+
+    /** A hand card with its redraw value. */
+    private record ValuedCard(CardInstance card, double value)
+    {
+    }
+
+    /** Descending by value. */
+    private static final class MostValuableFirst implements Comparator<ValuedCard>
+    {
+        @Override
+        public int compare(ValuedCard a, ValuedCard b)
+        {
+            return Double.compare(b.value(), a.value());
         }
     }
 }

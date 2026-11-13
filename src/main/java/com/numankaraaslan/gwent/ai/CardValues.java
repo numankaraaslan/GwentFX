@@ -22,6 +22,10 @@ final class CardValues
 
     /** Assumed value of a revive target when the discard pile has none yet. */
     private static final double DEFAULT_REVIVE = 3;
+    /** Keep value of a weather card. At the redraw, {@link WeatherMatchup} adjusts it to the matchup. */
+    static final double WEATHER_VALUE = 4;
+    /** Keep value of Clear Weather. */
+    static final double CLEAR_WEATHER_VALUE = 3;
 
     private CardValues()
     {
@@ -33,7 +37,7 @@ final class CardValues
         PlayerState player = state.player(me);
         if (def.isWeather())
         {
-            return def.special() == SpecialType.CLEAR_WEATHER ? 3 : 4;
+            return def.special() == SpecialType.CLEAR_WEATHER ? CLEAR_WEATHER_VALUE : WEATHER_VALUE;
         }
         if (def.isSpecialCard())
         {
