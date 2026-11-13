@@ -1,8 +1,10 @@
 package com.numankaraaslan.gwent.ui.game;
 
 import com.numankaraaslan.gwent.engine.snapshot.CardSnapshot;
+import com.numankaraaslan.gwent.engine.snapshot.PlayerSnapshot;
 import com.numankaraaslan.gwent.ui.card.CardSize;
 import com.numankaraaslan.gwent.ui.card.CardView;
+import com.numankaraaslan.gwent.ui.card.Icons;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,12 +17,14 @@ import javafx.scene.control.Label;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
 /**
- * Redraw phase: the whole hand in large cards (two rows when needed, smaller cards for very big hands).
- * Clicking a card swaps it; "Finish" keeps the hand. The new card of a swap is highlighted.
+ * Redraw phase: the opponent's faction and leader (hovering shows the leader in the card info panel, as in the original
+ * the opponent stays in view while you redraw), then the whole hand in large cards (two rows when needed, smaller cards
+ * for very big hands). Clicking a card swaps it; "Finish" keeps the hand. The new card of a swap is highlighted.
  */
 final class RedrawOverlay extends VBox {
 
@@ -37,6 +41,7 @@ final class RedrawOverlay extends VBox {
     private static final PseudoClass PICKABLE = PseudoClass.getPseudoClass("pickable");
     private static final double GAP = 14;
     private static final double MAX_ROW_WIDTH = 1420;
+    private static final double OPPONENT_ICON_SIZE = 32;
 
     private final BoardInput input;
     private final Listener listener;
@@ -48,7 +53,7 @@ final class RedrawOverlay extends VBox {
     private int highlightId = -1;
     private boolean enabled;
 
-    RedrawOverlay(BoardInput input, Listener listener) {
+    RedrawOverlay(BoardInput input, PlayerSnapshot opponent, Listener listener) {
         this.input = input;
         this.listener = listener;
         getStyleClass().addAll("gw-panel", "gm-game-dialog", "gm-redraw-dialog");
@@ -64,7 +69,17 @@ final class RedrawOverlay extends VBox {
                 }
             }
         });
-        getChildren().addAll(Layouts.label("Redraw", "gw-heading", "gm-dialog-title"), subtitle, rows, finishButton);
+        getChildren().addAll(Layouts.label("Redraw", "gw-heading", "gm-dialog-title"), opponentLine(opponent), subtitle, rows, finishButton);
+    }
+
+    /** "Opponent: faction, leader" after the faction emblem. Hovering it shows the leader card in the card info panel. */
+    private HBox opponentLine(PlayerSnapshot opponent) {
+        Label text = Layouts.label("Opponent: " + opponent.faction().displayName() + ", " + opponent.leader().name(), "gm-redraw-opponent");
+        HBox line = new HBox(10, Icons.faction(opponent.faction(), OPPONENT_ICON_SIZE), text);
+        line.setAlignment(Pos.CENTER);
+        line.setMaxWidth(Region.USE_PREF_SIZE);
+        line.addEventHandler(MouseEvent.MOUSE_ENTERED, new LeaderHover(opponent.index()));
+        return line;
     }
 
     /** Shows the hand; {@code newCardId} (the card just drawn) is highlighted, -1 for none. Unchanged hands are kept. */
@@ -141,6 +156,20 @@ final class RedrawOverlay extends VBox {
         @Override
         public void handle(MouseEvent event) {
             input.showCard(card);
+        }
+    }
+
+    private final class LeaderHover implements EventHandler<MouseEvent> {
+
+        private final int side;
+
+        LeaderHover(int side) {
+            this.side = side;
+        }
+
+        @Override
+        public void handle(MouseEvent event) {
+            input.showLeader(side);
         }
     }
 

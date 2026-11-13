@@ -3,6 +3,7 @@ package com.numankaraaslan.gwent.ui.game;
 import com.numankaraaslan.gwent.engine.ChoiceRequest;
 import com.numankaraaslan.gwent.engine.Move;
 import com.numankaraaslan.gwent.engine.snapshot.CardSnapshot;
+import com.numankaraaslan.gwent.engine.snapshot.PlayerSnapshot;
 import com.numankaraaslan.gwent.model.Faction;
 import com.numankaraaslan.gwent.model.RowType;
 import com.numankaraaslan.gwent.ui.card.CardSize;
@@ -34,13 +35,13 @@ final class PromptOverlays implements PromptHost {
     }
 
     @Override
-    public void promptRedraw(List<CardSnapshot> hand, int redrawsLeft, Reply<Integer> reply) {
+    public void promptRedraw(List<CardSnapshot> hand, PlayerSnapshot opponent, int redrawsLeft, Reply<Integer> reply) {
         if (disposed) {
             return;
         }
         redrawReply = reply;
         if (redraw == null) {
-            redraw = new RedrawOverlay(input, new RedrawOverlay.Listener() {
+            redraw = new RedrawOverlay(input, opponent, new RedrawOverlay.Listener() {
                 @Override
                 public void swap(int cardId) {
                     answerRedraw(cardId);

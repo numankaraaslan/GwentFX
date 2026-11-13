@@ -485,6 +485,11 @@
     -fx-padding: 22 36 26 36;
 }
 
+.gm-redraw-opponent {
+    -fx-font-size: 22px;
+    -fx-text-fill: -gw-gold-bright;
+}
+
 .gm-choice-card {
     -fx-background-color: transparent;
     -fx-background-insets: -5;

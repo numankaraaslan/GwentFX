@@ -5,7 +5,10 @@ import com.numankaraaslan.gwent.engine.GameAbortedException;
 import com.numankaraaslan.gwent.engine.GameState;
 import com.numankaraaslan.gwent.engine.Move;
 import com.numankaraaslan.gwent.engine.PlayerController;
+import com.numankaraaslan.gwent.engine.Rules;
 import com.numankaraaslan.gwent.engine.snapshot.CardSnapshot;
+import com.numankaraaslan.gwent.engine.snapshot.GameSnapshot;
+import com.numankaraaslan.gwent.engine.snapshot.PlayerSnapshot;
 import com.numankaraaslan.gwent.engine.snapshot.Snapshots;
 import com.numankaraaslan.gwent.model.RowType;
 import java.util.ArrayList;
@@ -30,12 +33,14 @@ final class HumanController implements PlayerController {
 
     @Override
     public int chooseRedraw(GameState state, int player, int redrawsLeft) {
-        List<CardSnapshot> hand = Snapshots.of(state, player).player(player).hand();
+        GameSnapshot snapshot = Snapshots.of(state, player);
+        List<CardSnapshot> hand = snapshot.player(player).hand();
+        PlayerSnapshot opponent = snapshot.player(Rules.opponent(player));
         Reply<Integer> reply = new Reply<>();
         Integer answer = ask(reply, new Prompt<Integer>(reply, -1) {
             @Override
             void show() {
-                host.promptRedraw(hand, redrawsLeft, reply);
+                host.promptRedraw(hand, opponent, redrawsLeft, reply);
             }
         });
         return answer == null ? -1 : answer;

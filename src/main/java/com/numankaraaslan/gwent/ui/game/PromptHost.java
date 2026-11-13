@@ -3,6 +3,7 @@ package com.numankaraaslan.gwent.ui.game;
 import com.numankaraaslan.gwent.engine.ChoiceRequest;
 import com.numankaraaslan.gwent.engine.Move;
 import com.numankaraaslan.gwent.engine.snapshot.CardSnapshot;
+import com.numankaraaslan.gwent.engine.snapshot.PlayerSnapshot;
 import com.numankaraaslan.gwent.model.RowType;
 import java.util.List;
 
@@ -12,8 +13,8 @@ import java.util.List;
  */
 interface PromptHost {
 
-    /** Redraw phase: show the hand; answer the id of a card to swap, or -1 to keep the hand. */
-    void promptRedraw(List<CardSnapshot> hand, int redrawsLeft, Reply<Integer> reply);
+    /** Redraw phase: show the hand and who the opponent is; answer the id of a card to swap, or -1 to keep the hand. */
+    void promptRedraw(List<CardSnapshot> hand, PlayerSnapshot opponent, int redrawsLeft, Reply<Integer> reply);
 
     /** Scoia'tael perk: answer true to go first, false to let the opponent start. */
     void promptGoFirst(Reply<Boolean> reply);
