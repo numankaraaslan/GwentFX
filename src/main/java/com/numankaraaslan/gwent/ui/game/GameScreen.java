@@ -37,6 +37,9 @@ import javafx.scene.layout.StackPane;
  */
 public class GameScreen extends StackPane implements Disposable {
 
+    /** The win that completes the collection opens its popup this long after the result screen, once the card has popped in. */
+    private static final double CELEBRATION_DELAY = 1200;
+
     private final Navigator navigator;
     private final GameSettings settings;
     private final GameMode mode;
@@ -53,6 +56,7 @@ public class GameScreen extends StackPane implements Disposable {
     private Scene keyScene;
     private Overlay pauseOverlay;
     private Overlay endOverlay;
+    private Overlay celebration;
     private boolean disposed;
 
     /**
@@ -149,7 +153,10 @@ public class GameScreen extends StackPane implements Disposable {
         animator.setPaused(false);
     }
 
-    /** Shows the result screen (called by the animator for GAME_ENDED), with what the mode adds to it, if anything. */
+    /**
+     * Shows the result screen (called by the animator for GAME_ENDED), with what the mode adds to it, if anything. A win
+     * that completes the collection opens the Collection Complete popup over it a moment later.
+     */
     void showGameOver(GameSnapshot snapshot) {
         if (disposed) {
             return;
@@ -174,6 +181,34 @@ public class GameScreen extends StackPane implements Disposable {
             }
         });
         endOverlay = overlays.showFull(content);
+        if (note != null && note.collectionComplete()) {
+            Animations.play(Animations.pause(CELEBRATION_DELAY), new Runnable() {
+                @Override
+                public void run() {
+                    showCelebration();
+                }
+            });
+        }
+    }
+
+    /** Celebrates the last card of the collection in a popup over the result screen; its button or Esc closes it. */
+    private void showCelebration() {
+        if (disposed) {
+            return;
+        }
+        celebration = overlays.showFull(new CollectionCompletePopup(new Runnable() {
+            @Override
+            public void run() {
+                closeCelebration();
+            }
+        }));
+    }
+
+    private void closeCelebration() {
+        if (celebration != null) {
+            celebration.close();
+            celebration = null;
+        }
     }
 
     /** The engine crashed (or could not be created): explain and offer the way back. */
@@ -197,9 +232,16 @@ public class GameScreen extends StackPane implements Disposable {
         endOverlay = overlays.showFull(Dialogs.panel("Something went wrong", "The game cannot continue: " + message, null, buttons));
     }
 
-    /** ESC handling, topmost first: pause menu, confirmation, discard pile, selection; otherwise open the pause menu. */
+    /**
+     * ESC handling, topmost first: Collection Complete popup, pause menu, confirmation, discard pile, selection; otherwise
+     * open the pause menu.
+     */
     private void escape() {
         if (disposed) {
+            return;
+        }
+        if (celebration != null && celebration.isOpen()) {
+            closeCelebration();
             return;
         }
         if (pauseOverlay != null && pauseOverlay.isOpen()) {

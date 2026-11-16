@@ -75,7 +75,7 @@ public final class CollectorMode implements GameMode {
      * A win unlocks a card of the difficulty's tier, from the faction furthest behind, and saves the collection; the
      * result screen shows the card. The cards in the file are added first, in case another window has won some, and
      * every save writes the whole collection, so a card whose save failed is saved again with the next win. A deleted
-     * file means the player started over.
+     * file means the player started over. The win that unlocks the last card, on whichever difficulty, is celebrated.
      */
     @Override
     public ResultNote gameEnded(GameSettings settings, int winner) {
@@ -91,10 +91,10 @@ public final class CollectorMode implements GameMode {
         Reward reward = collection.unlockRandom(tier, random);
         CollectionFile.save(collection);
         if (reward == null) {
-            return new ResultNote(null, tier.displayName() + " wins have no cards left to unlock.", List.of());
+            return new ResultNote(null, tier.displayName() + " wins have no cards left to unlock.", List.of(), false);
         }
         String title = reward.cards().size() == 1 ? "New card unlocked in collection!" : "New cards unlocked in collection!";
-        return new ResultNote(title, null, reward.cards());
+        return new ResultNote(title, null, reward.cards(), collection.complete());
     }
 
     @Override

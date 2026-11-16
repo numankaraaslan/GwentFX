@@ -87,6 +87,16 @@ public final class CardCollection {
         return CardPool.of(owned);
     }
 
+    /** Whether you own every card: every reward of every tier is unlocked, whatever order the tiers were won in. */
+    public boolean complete() {
+        for (Reward reward : rewards) {
+            if (!ownsAll(reward)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     /** The rewards of this tier you don't fully own yet. */
     public List<Reward> remaining(Tier tier) {
         List<Reward> result = new ArrayList<>();

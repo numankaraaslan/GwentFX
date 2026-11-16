@@ -590,3 +590,78 @@
     -fx-text-fill: -gw-gold-bright;
     -fx-padding: 7 12 7 12;
 }
+
+/* ---------------------------------------------------------------- collection complete */
+
+/* the popup that celebrates the last card of Collector Mode; what moves in it (rays, fireworks, confetti) is drawn in code */
+.gm-complete-backdrop {
+    -fx-background-color: radial-gradient(center 50% 18%, radius 100%, #4a3420 0%, #22170e 42%, #0d0906 100%);
+    -fx-background-radius: 16;
+    -fx-effect: dropshadow(gaussian, rgba(243, 214, 144, 0.35), 40, 0.15, 0, 0);
+}
+
+.gm-complete-frame {
+    -fx-border-color: -gw-gold, rgba(212, 175, 90, 0.4);
+    -fx-border-width: 2.5, 1;
+    -fx-border-insets: 0, 8;
+    -fx-border-radius: 16, 8;
+}
+
+.gm-complete-seal {
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.8), 20, 0.3, 0, 6);
+}
+
+/* two copies of the title: the base below, and on top the copy the light band sweeps over (its fill is set in code) */
+.gm-complete-title {
+    -fx-font-family: "Georgia";
+    -fx-font-size: 52px;
+    -fx-font-weight: bold;
+}
+
+.gm-complete-title-base {
+    -fx-fill: linear-gradient(to bottom, #fff2c9 0%, #f0c96e 48%, #a37a2c 100%);
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.95), 14, 0.45, 0, 3);
+}
+
+.gm-complete-subtitle {
+    -fx-font-size: 23px;
+    -fx-font-style: italic;
+    -fx-text-fill: -gw-text;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.9), 6, 0.4, 0, 1);
+}
+
+.gm-complete-medallion {
+    -fx-effect: dropshadow(gaussian, rgba(243, 214, 144, 0.55), 14, 0.3, 0, 0);
+}
+
+.gm-complete-chips {
+    -fx-spacing: 16;
+    -fx-alignment: center;
+}
+
+.gm-complete-chip {
+    -fx-spacing: 8;
+    -fx-alignment: center;
+    -fx-background-color: rgba(212, 175, 90, 0.14);
+    -fx-background-radius: 18;
+    -fx-border-color: -gw-gold-dark;
+    -fx-border-radius: 18;
+    -fx-padding: 5 16 5 10;
+}
+
+.gm-complete-chip-label {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -gw-gold-bright;
+}
+
+.gm-complete-button {
+    -fx-font-size: 24px;
+    -fx-padding: 9 48 9 48;
+}
+
+.gm-complete-hint {
+    -fx-font-size: 17px;
+    -fx-font-style: italic;
+    -fx-text-fill: -gw-text-dim;
+}
