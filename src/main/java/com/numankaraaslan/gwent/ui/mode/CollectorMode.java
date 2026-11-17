@@ -67,6 +67,11 @@ public final class CollectorMode implements GameMode {
     }
 
     @Override
+    public boolean collectionComplete() {
+        return collection.complete();
+    }
+
+    @Override
     public CardPool pool() {
         return collection.pool();
     }

@@ -33,6 +33,12 @@ public interface GameMode {
     /** Shown under the name of a difficulty button ("47 cards left"): how many more cards wins there unlock; empty for none. */
     OptionalInt cardsLeft(Difficulty difficulty);
 
+    /**
+     * Whether every card is owned (Collector Mode): the setup screen then has a button that opens the Collection Complete
+     * popup again.
+     */
+    boolean collectionComplete();
+
     /** The cards both decks are built from, as of now. Asked every time a game starts. */
     CardPool pool();
 

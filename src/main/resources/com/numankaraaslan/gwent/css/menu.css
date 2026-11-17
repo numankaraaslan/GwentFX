@@ -523,6 +523,13 @@
     -fx-padding: 8 26 8 26;
 }
 
+/* Collector Mode once every card is owned: opens the Collection Complete popup again */
+.ng-screen .ng-celebrate {
+    -fx-graphic-text-gap: 10;
+    -fx-padding: 6 26 6 20;
+    -fx-effect: dropshadow(gaussian, rgba(243, 214, 144, 0.5), 14, 0.25, 0, 0);
+}
+
 /* difficulty buttons: Collector Mode adds a second line under the name, "47 cards left" */
 .ng-difficulty {
     -fx-content-display: bottom;

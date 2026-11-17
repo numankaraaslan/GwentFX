@@ -10,6 +10,7 @@ import com.numankaraaslan.gwent.ui.card.CardBackView;
 import com.numankaraaslan.gwent.ui.card.CardSize;
 import com.numankaraaslan.gwent.ui.card.Icons;
 import com.numankaraaslan.gwent.ui.card.LeaderView;
+import com.numankaraaslan.gwent.ui.game.CollectionCompletePopup;
 import com.numankaraaslan.gwent.ui.mode.GameMode;
 import com.numankaraaslan.gwent.ui.mode.SetupLink;
 import java.util.ArrayList;
@@ -47,7 +48,8 @@ import javafx.util.Callback;
  * the computer opponent with its difficulty and the rule options (starting hand, redraws). The right column explains the
  * leader: the chosen leader's ability, the one hovered in the leader list, or every possible leader for "Random"; it
  * scrolls when the text is long. "Start game" hands the resulting {@link GameSettings} to the navigator. The choices are
- * remembered for the rest of the session (both modes share them), so the setup screens reopen with them.
+ * remembered for the rest of the session (both modes share them), so the setup screens reopen with them. Once every card
+ * of Collector Mode is owned, a "Collection Complete" button in the header opens the celebration popup again.
  */
 public class NewGameScreen extends StackPane {
 
@@ -56,6 +58,7 @@ public class NewGameScreen extends StackPane {
     /** Size of the faction and leader cards under the drop-down lists. */
     private static final CardSize PICK_CARD = CardSize.LARGE;
     private static final double COMBO_ICON_SIZE = 28;
+    private static final double CELEBRATION_ICON_SIZE = 26;
     private static final String SEPARATOR = "   •   ";
     private static final String DOT = " · ";
     private static final String ACTIVE_HINT = "During the battle, click your leader card to use the ability. It takes your turn, just like playing a card.";
@@ -89,6 +92,10 @@ public class NewGameScreen extends StackPane {
     private final OptionGroup<Integer> redraws = new OptionGroup<>("menu-options", "menu-option");
     private final OptionGroup<Difficulty> difficulties = new OptionGroup<>("menu-options", "menu-option");
     private final Label summary = MenuUi.wrapping("", "ng-summary");
+    private Button back;
+    private Button start;
+    /** The Collection Complete popup on its veil; null while it is closed. */
+    private StackPane celebration;
 
     private Faction playerFaction;
     private LeaderDef playerLeader;
@@ -124,6 +131,11 @@ public class NewGameScreen extends StackPane {
         Label title = MenuUi.label(mode.title(), "gw-heading", "menu-page-title");
         Label subtitle = MenuUi.label(mode.subtitle(), "menu-page-subtitle");
         HBox header = new HBox(title, subtitle, MenuUi.hSpacer());
+        if (mode.collectionComplete()) {
+            Button celebrate = MenuUi.button("Collection Complete", new CelebrationOpen(), "gw-button-primary", "ng-link", "ng-celebrate");
+            celebrate.setGraphic(Icons.crown(CELEBRATION_ICON_SIZE));
+            header.getChildren().add(celebrate);
+        }
         for (SetupLink link : mode.setupLinks(navigator)) {
             header.getChildren().add(MenuUi.button(link.label(), new LinkAction(link), "ng-link"));
         }
@@ -248,8 +260,8 @@ public class NewGameScreen extends StackPane {
     }
 
     private HBox buildButtonBar() {
-        Button back = MenuUi.backButton(navigator);
-        Button start = MenuUi.button("Start game", new StartAction(), "gw-button-primary", "ng-start");
+        back = MenuUi.backButton(navigator);
+        start = MenuUi.button("Start game", new StartAction(), "gw-button-primary", "ng-start");
         start.setDefaultButton(true);
         summary.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(summary, Priority.ALWAYS);
@@ -643,6 +655,48 @@ public class NewGameScreen extends StackPane {
         @Override
         public void run() {
             refresh();
+        }
+    }
+
+    /**
+     * Opens the Collection Complete popup over the page. While it is open, Esc presses its button (once it shows) instead
+     * of going back, and Enter doesn't start a game behind it.
+     */
+    private void showCelebration() {
+        if (celebration != null) {
+            return;
+        }
+        back.setCancelButton(false);
+        start.setDefaultButton(false);
+        CollectionCompletePopup popup = new CollectionCompletePopup(new CelebrationClose());
+        popup.closeWithEscape();
+        celebration = new StackPane(popup);
+        celebration.getStyleClass().add("gw-overlay");
+        getChildren().add(celebration);
+    }
+
+    /** Removes the popup (which stops its show) and gives Esc and Enter back to Back and Start game. */
+    private void closeCelebration() {
+        if (celebration == null) {
+            return;
+        }
+        getChildren().remove(celebration);
+        celebration = null;
+        back.setCancelButton(true);
+        start.setDefaultButton(true);
+    }
+
+    private final class CelebrationOpen implements EventHandler<ActionEvent> {
+        @Override
+        public void handle(ActionEvent event) {
+            showCelebration();
+        }
+    }
+
+    private final class CelebrationClose implements Runnable {
+        @Override
+        public void run() {
+            closeCelebration();
         }
     }
 

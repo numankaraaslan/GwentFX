@@ -55,7 +55,7 @@ import javafx.scene.transform.Rotate;
  * coins and twinkles in front of it). Removing the popup from its scene stops the timer, so a closed popup leaves nothing
  * running.</p>
  */
-final class CollectionCompletePopup extends StackPane {
+public final class CollectionCompletePopup extends StackPane {
 
     /**
      * Half the width and height of the 1920 x 1080 canvas. The canvas is scaled to fit the window, so the popup always
@@ -180,7 +180,7 @@ final class CollectionCompletePopup extends StackPane {
      *
      * @param onClose what the button does: close the popup
      */
-    CollectionCompletePopup(Runnable onClose) {
+    public CollectionCompletePopup(Runnable onClose) {
         getStyleClass().add("gm-complete-popup");
         Layouts.fix(this, WIDTH, HEIGHT);
         CardCollection all = CardCollection.of(CardDatabase.get(), Collections.emptySet());
@@ -252,6 +252,14 @@ final class CollectionCompletePopup extends StackPane {
         getChildren().addAll(backdrop, stage, frame, ornaments());
         addEventHandler(MouseEvent.MOUSE_PRESSED, new ClickFirework());
         sceneProperty().addListener(new SceneWatch());
+    }
+
+    /**
+     * Makes the button the cancel button, so Esc presses it once it shows. For screens whose own cancel button is switched
+     * off while the popup is open; the game screen handles Esc itself.
+     */
+    public void closeWithEscape() {
+        button.setCancelButton(true);
     }
 
     // ------------------------------------------------------------------ building

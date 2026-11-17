@@ -47,6 +47,11 @@ public final class FreePlayMode implements GameMode {
     }
 
     @Override
+    public boolean collectionComplete() {
+        return false;
+    }
+
+    @Override
     public CardPool pool() {
         return pool;
     }

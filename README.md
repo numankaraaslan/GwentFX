@@ -106,7 +106,8 @@ Both are started from the main menu.
   so they all grow at the same pace whichever one you play. The computer plays with the same cards you own. The
   difficulty buttons show how many cards each difficulty can still unlock, and
   **My Collection** shows the cards you own. The win that completes your collection, on whichever difficulty, is
-  celebrated with fireworks. [RULES.md](RULES.md#collector-mode) has the details.
+  celebrated with fireworks, and from then on a **Collection Complete** button on the Collector Mode screen shows them
+  again. [RULES.md](RULES.md#collector-mode) has the details.
 
   Your collection is saved in `.gwentfx/collection.txt` in your home folder, one card id per line. **Reset progress**
   in My Collection, or deleting that file, starts over. If the file is missing it is created, and lines that aren't
