@@ -32,6 +32,7 @@ below are the current values in that code.
 | [`MoveEval.java`](src/main/java/com/numankaraaslan/gwent/ai/MoveEval.java) | The measured result of one move. |
 | [`CardValues.java`](src/main/java/com/numankaraaslan/gwent/ai/CardValues.java) | How much each card is worth keeping in hand. |
 | [`WeatherMatchup.java`](src/main/java/com/numankaraaslan/gwent/ai/WeatherMatchup.java) | What its weather cards are worth at the redraw, given both factions and leaders. |
+| [`CardCount.java`](src/main/java/com/numankaraaslan/gwent/ai/CardCount.java) | Card counting (Hard): which of your cards it hasn't seen yet, and the chance that your hand holds a Scorch. |
 | [`RoundContext.java`](src/main/java/com/numankaraaslan/gwent/ai/RoundContext.java) | The state of the round: gems, totals, hand sizes, who has passed, who wins ties. |
 | [`ChoicePolicy.java`](src/main/java/com/numankaraaslan/gwent/ai/ChoicePolicy.java) | Choices in the middle of a move: Medic target, weather from the deck, discards, agile rows. |
 | [`SimulationDecider.java`](src/main/java/com/numankaraaslan/gwent/ai/SimulationDecider.java) | Makes those choices instantly inside simulations, using `ChoicePolicy`. |
@@ -270,7 +271,7 @@ When the AI gives up a round that doesn't decide the game:
 | --- | --- |
 | Easy | `easyMove` replaces step 3 (below). It never redraws. |
 | Normal | Steps 1–3 as described above. |
-| Hard | Normal, plus Scorch caution (below). |
+| Hard | Normal, plus Scorch caution with card counting (below). |
 
 **Easy** (`easyMove`):
 
@@ -282,10 +283,31 @@ When the AI gives up a round that doesn't decide the game:
 
 **Scorch caution (Hard).** A Scorch kills the strongest units on the board. The AI's *exposure* is how much more
 strength a Scorch would kill on its side than on yours (never below 0). While you still have cards and haven't
-passed, each move's score loses risk × (exposure after the move − exposure before). The risk is 0.2, or 0.8 when
-Emperor of Nilfgaard showed it a Scorch in your hand that hasn't been played since. So it avoids turning one big unit
-into an obvious Scorch target. The risk is 0 when your deck can't hold a Scorch at all: neither the Scorch card nor,
-for Skellige, Clan Dimun Pirate is in it. That happens in Collector Mode until one of them is unlocked.
+passed, each move's score loses risk × (exposure after the move − exposure before). So it avoids turning one big unit
+into an obvious Scorch target.
+
+The risk is 0.8 × the chance that your hand holds a card that scorches the whole battlefield: Scorch, or Clan Dimun
+Pirate for Skellige. It works that chance out by counting cards (below). When Emperor of Nilfgaard showed it such a
+card in your hand, and you haven't played it since, the chance is 1, so the risk is 0.8.
+
+**Card counting (Hard)** (`CardCount`). Your deck list is public: every card of your faction plus every neutral card
+in the card pool, with all copies. The AI crosses off every card of yours that has shown up: on the battlefield, in
+the weather zone or in a discard pile, plus any card of yours in its own hand or deck. The rest is in your hand or your
+deck. The hand cards it doesn't know could be any of them, so with H unknown hand cards, N unknown cards in all (those
+H plus your deck) and S Scorch cards among them:
+
+> chance = 1 − (the chance that none of the H is a Scorch) = 1 − C(N − S, H) / C(N, H)
+
+| Situation (Northern Realms, Free Play) | Chance | Risk |
+| --- | --- | --- |
+| Start of the game: 10 cards in hand, 77 unknown cards, 3 Scorch cards | 35% | 0.28 |
+| Round 2: 6 cards in hand, 61 unknown cards, 3 Scorch cards | 27% | 0.22 |
+| Round 3: 3 cards in hand, 50 unknown cards, 3 Scorch cards | 17% | 0.14 |
+| The same, after 2 Scorch cards were played | 6% | 0.05 |
+| All 3 Scorch cards played | 0 | 0 |
+
+A Skellige deck has Clan Dimun Pirate too: 4 Scorch cards, 43% at the start. In Collector Mode, before Scorch or Clan
+Dimun Pirate is unlocked, your deck holds none, so the chance is 0.
 
 ## Collector Mode
 
@@ -386,16 +408,21 @@ It plays fair:
 - It knows which cards the decks are built from: every card in Free Play, your collection in Collector Mode. It
   doesn't know which of them you hold. With your faction, this tells it which rows your deck relies on, which it uses
   to value its weather cards at the redraw.
+- On Hard it counts cards: it crosses off the cards of yours it has seen, so it knows which ones are still in your
+  hand or deck, but not where. Only their number is read from the game: how many cards you hold and how many are left
+  in your deck, which the screen shows too.
 - It never looks at your hand or your deck. The one exception: when its leader, Emperor of Nilfgaard, shows it 3
-  cards from your hand, it remembers them. Hard uses this to watch for a Scorch.
+  cards from your hand, it remembers them until you play them. Hard uses this to watch for a Scorch.
 
 ## Limits
 
 - **One move deep.** It simulates its own next move, never your answer to it. The round tactics stand in for looking
   further ahead.
-- **No card counting.** It doesn't work out which cards you might still hold. For example, Hard keeps assuming a 20%
-  Scorch risk even after all three Scorch cards have been played. It only rules a Scorch out when your deck can't
-  hold one at all.
+- **Card counting only for Scorch.** Hard counts your cards, but only the Scorch risk uses the count. Nothing works
+  out how much your remaining cards could still add, so the safe leads in a must-win round are fixed amounts. The
+  count also takes your unknown hand cards as a random pick from your unseen cards, though you chose which ones to
+  keep. A card of yours that went back to your hand (Decoy, Bringer of Death) counts as unseen again, not as surely in
+  your hand, and a Clan Dimun Pirate a Medic could revive from your discard pile isn't counted.
 - **Hand-tuned numbers.** The card values, weights and budgets are reasonable guesses, not learned or proven.
 
 ## Tuning
@@ -406,6 +433,7 @@ It plays fair:
 | Easy's randomness, Hard's Scorch risk, spending budgets, safe leads | constants at the top of `AiBrain` (below) |
 | What cards are worth | `CardValues.keepValue` and `CardValues.playCost` |
 | What weather cards are worth at the redraw | the constants at the top of `WeatherMatchup`: `SHARE_WEIGHT` (10), `MIN_VALUE` (1), `MAX_VALUE` (8) |
+| Which cards count as a Scorch, the chance that you hold one | `CardCount` |
 | How much saving cards matters, the leader's value, the round 1 hand floor | `RoundContext.conserve`, `leaderValue`, `roundOneHandFloor` |
 | How the amounts shrink with weaker cards | `RoundContext.cardScale` and `scaled` |
 | Choices during a move | `ChoicePolicy` |
@@ -417,8 +445,7 @@ they are used:
 | --- | --- | --- |
 | `EASY_RANDOM_MOVE` | 0.35 | Chance that Easy plays a random sensible move. |
 | `EASY_PASS_LEAD` | 6 | Lead at which Easy may pass early. |
-| `SCORCH_RISK_UNKNOWN` | 0.2 | Hard's Scorch risk without any information. |
-| `SCORCH_RISK_REVEALED` | 0.8 | Hard's Scorch risk after seeing a Scorch in your hand. |
+| `SCORCH_RISK_HELD` | 0.8 | Hard's Scorch risk when it knows you hold a Scorch; otherwise this × the chance that you do. |
 | `ROUND_ONE_CHASE_BUDGET` | 8 | Most potential it spends per move to win round 1 after you passed. |
 | `ROUND_ONE_RETAKE_BUDGET` | 8 | Most potential it spends to retake the lead in round 1 while you still play. |
 | `OPPONENT_MUST_WIN_BUDGET` | 10 | Most potential it spends per exchange in a round you must win. |

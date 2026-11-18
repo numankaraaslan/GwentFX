@@ -7,7 +7,6 @@ import com.numankaraaslan.gwent.engine.Move;
 import com.numankaraaslan.gwent.engine.PlayerState;
 import com.numankaraaslan.gwent.engine.RowState;
 import com.numankaraaslan.gwent.engine.snapshot.CardSnapshot;
-import com.numankaraaslan.gwent.model.Ability;
 import com.numankaraaslan.gwent.model.CardDef;
 import com.numankaraaslan.gwent.model.Difficulty;
 import com.numankaraaslan.gwent.model.RowType;
@@ -17,6 +16,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -52,10 +52,8 @@ final class AiBrain
     private static final double EASY_RANDOM_MOVE = 0.35;
     /** Lead at which the Easy AI may pass early. */
     private static final double EASY_PASS_LEAD = 6;
-    /** How likely Hard assumes an unseen Scorch in the opponent's hand, when their deck has one. */
-    private static final double SCORCH_RISK_UNKNOWN = 0.2;
-    /** ... and when Emperor of Nilfgaard revealed one. */
-    private static final double SCORCH_RISK_REVEALED = 0.8;
+    /** Hard's Scorch risk when it knows the opponent holds a Scorch; otherwise this times the chance that they do ({@link CardCount}). */
+    private static final double SCORCH_RISK_HELD = 0.8;
     /** Most card potential the AI spends per move to win round 1 after the opponent passed. */
     private static final double ROUND_ONE_CHASE_BUDGET = 8;
     /** Most card potential the AI spends to retake the lead in round 1 while the opponent still plays. */
@@ -108,17 +106,11 @@ final class AiBrain
             trackedRound = state.round();
             roundStartHand = ctx.myHand();
         }
+        forgetPlayedCards(state);
         double risk = 0;
         if (difficulty == Difficulty.HARD && !ctx.oppPassed() && ctx.oppHand() > 0)
         {
-            if (opponentMayHoldScorch(state))
-            {
-                risk = SCORCH_RISK_REVEALED;
-            }
-            else if (opponentDeckHasScorch(state, ctx.opp()))
-            {
-                risk = SCORCH_RISK_UNKNOWN;
-            }
+            risk = SCORCH_RISK_HELD * CardCount.of(state, me, revealed.values()).scorchChance();
         }
         List<MoveEval> evals = simulator.evaluateAll(state, ctx, plays, risk);
         if (evals.isEmpty())
@@ -647,34 +639,21 @@ final class AiBrain
         return total >= need;
     }
 
-    /** Hard only: was a Scorch seen in the opponent's hand (Emperor of Nilfgaard) that hasn't been played since? */
-    private boolean opponentMayHoldScorch(GameState state)
-    {
-        for (Map.Entry<Integer, CardDef> entry : revealed.entrySet())
-        {
-            if (entry.getValue().special() == SpecialType.SCORCH && !isPublic(state, entry.getKey()))
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
     /**
-     * Whether the opponent's deck holds a card that scorches the whole battlefield: Scorch, or Clan Dimun Pirate for
-     * Skellige. In Collector Mode it may hold neither, and then there is no Scorch to fear. Both players know which
-     * cards the decks are built from.
+     * Forgets the revealed cards that have shown up since (played or discarded): the ones left are still in the opponent's
+     * hand. Done every turn, so a played card that is later shuffled back into the deck (Crach an Craite) isn't taken for
+     * a hand card.
      */
-    private static boolean opponentDeckHasScorch(GameState state, int opp)
+    private void forgetPlayedCards(GameState state)
     {
-        for (CardDef card : state.db().deckPool(state.player(opp).faction()))
+        Iterator<Integer> ids = revealed.keySet().iterator();
+        while (ids.hasNext())
         {
-            if (state.pool().contains(card) && (card.special() == SpecialType.SCORCH || (card.isUnit() && card.ability() == Ability.SCORCH)))
+            if (isPublic(state, ids.next()))
             {
-                return true;
+                ids.remove();
             }
         }
-        return false;
     }
 
     /** True if the card is visible on the battlefield, in the weather zone or in a discard pile. */
