@@ -127,9 +127,11 @@ public class NewGameScreen extends StackPane {
 
     // ------------------------------------------------------------------ layout
 
+    /** Title, subtitle and the mode's buttons. The title always keeps its full width; the subtitle wraps onto more lines when the buttons leave it too little room. */
     private HBox buildHeader() {
         Label title = MenuUi.label(mode.title(), "gw-heading", "menu-page-title");
-        Label subtitle = MenuUi.label(mode.subtitle(), "menu-page-subtitle");
+        title.setMinWidth(Region.USE_PREF_SIZE);
+        Label subtitle = MenuUi.wrapping(mode.subtitle(), "menu-page-subtitle");
         HBox header = new HBox(title, subtitle, MenuUi.hSpacer());
         if (mode.collectionComplete()) {
             Button celebrate = MenuUi.button("Collection Complete", new CelebrationOpen(), "gw-button-primary", "ng-link", "ng-celebrate");

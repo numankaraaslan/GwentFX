@@ -23,6 +23,8 @@ import java.util.Random;
 public final class CollectorMode implements GameMode {
 
     private static final String DECK_NOTE = "Your deck holds the cards you own: the starter cards plus every card you have won, with all their copies. The computer's deck is built from the same cards.";
+    /** The setup screen's subtitle and the note after a win once every card is owned. */
+    private static final String ALL_UNLOCKED = "You have unlocked every card — play on with the full collection.";
 
     private final CardDatabase db = CardDatabase.get();
     private final CardPool everything = CardPool.full(db);
@@ -37,6 +39,9 @@ public final class CollectorMode implements GameMode {
 
     @Override
     public String subtitle() {
+        if (collection.complete()) {
+            return ALL_UNLOCKED;
+        }
         return "Every win unlocks a card: mid-strength units on Easy, strong cards on Normal, heroes on Hard.";
     }
 
@@ -96,7 +101,8 @@ public final class CollectorMode implements GameMode {
         Reward reward = collection.unlockRandom(tier, random);
         CollectionFile.save(collection);
         if (reward == null) {
-            return new ResultNote(null, tier.displayName() + " wins have no cards left to unlock.", List.of(), false);
+            String note = collection.complete() ? ALL_UNLOCKED : tier.displayName() + " wins have no cards left to unlock.";
+            return new ResultNote(null, note, List.of(), false);
         }
         String title = reward.cards().size() == 1 ? "New card unlocked in collection!" : "New cards unlocked in collection!";
         return new ResultNote(title, null, reward.cards(), collection.complete());
