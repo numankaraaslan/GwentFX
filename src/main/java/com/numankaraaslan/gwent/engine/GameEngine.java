@@ -1,6 +1,7 @@
 package com.numankaraaslan.gwent.engine;
 
 import com.numankaraaslan.gwent.engine.snapshot.Snapshots;
+import com.numankaraaslan.gwent.model.Advantage;
 import com.numankaraaslan.gwent.model.CardDatabase;
 import com.numankaraaslan.gwent.model.CardPool;
 import com.numankaraaslan.gwent.model.Faction;
@@ -14,6 +15,8 @@ import java.util.Random;
 /**
  * Runs one game of Gwent on its own thread: deal, redraw, coin toss, three rounds of turns, game over.
  * Talks to the two {@link PlayerController}s for decisions and reports every step to the {@link GameListener}.
+ * On Hard+ it also gives the computer the advantages picked in the settings: the extra card after the deal, your
+ * redraws skipped, and a card when rounds 2 and 3 start.
  *
  * <p>Typical use from the UI: {@code new GameEngine(settings, pool, humanController, aiController, listener).start()},
  * and {@link #stop()} when leaving the game screen. Both decks are built from the cards in {@code pool}.</p>
@@ -93,6 +96,9 @@ public final class GameEngine implements Runnable {
         state.setPhase(GamePhase.REDRAW);
         deal(GameState.HUMAN);
         deal(GameState.AI);
+        if (state.settings().has(Advantage.EXTRA_CARD)) {
+            advantageDraw("Hard+: the opponent drew one extra card.");
+        }
         redraw(GameState.HUMAN);
         redraw(GameState.AI);
         chooseFirstPlayer();
@@ -135,9 +141,24 @@ public final class GameEngine implements Runnable {
         emit(EventType.HAND_DEALT, player, ids, text);
     }
 
+    /** Hard+: the computer draws the top card of its deck for an advantage; nothing happens if its deck is empty. */
+    private void advantageDraw(String text) {
+        PlayerState ai = state.player(GameState.AI);
+        if (ai.deck().isEmpty()) {
+            return;
+        }
+        CardInstance card = ai.deck().remove(0);
+        ai.hand().add(card);
+        emit(EventType.ADVANTAGE, GameState.AI, List.of(card.id()), text);
+    }
+
     private void redraw(int player) {
         PlayerState side = state.player(player);
         int left = state.settings().redraws();
+        if (player == GameState.HUMAN && left > 0 && state.settings().has(Advantage.NO_REDRAWS)) {
+            emit(EventType.ADVANTAGE, GameState.AI, List.of(), "Hard+: no redraws for you.");
+            left = 0;
+        }
         while (left > 0 && !side.deck().isEmpty() && !side.hand().isEmpty()) {
             int cardId = controllers[player].chooseRedraw(state, player, left);
             checkStopped();
@@ -192,6 +213,9 @@ public final class GameEngine implements Runnable {
                     resolver.skelligeReturn(p);
                 }
             }
+        }
+        if (state.round() > 1 && state.settings().has(Advantage.CARD_EACH_ROUND)) {
+            advantageDraw("Hard+: the opponent drew a card for round " + state.round() + ".");
         }
         for (int p = 0; p < 2; p++) {
             if (state.player(p).hand().isEmpty()) {

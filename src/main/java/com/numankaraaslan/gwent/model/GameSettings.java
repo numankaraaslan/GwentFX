@@ -32,4 +32,10 @@ public record GameSettings(Faction playerFaction, LeaderDef playerLeader, Factio
     {
         return new GameSettings(playerFaction, null, null, null, DEFAULT_HAND_SIZE, DEFAULT_REDRAWS, Difficulty.NORMAL, Set.of(Advantage.EXTRA_CARD));
     }
+
+    /** Whether the computer has {@code advantage} in this game: it was picked, and the difficulty is Hard+. */
+    public boolean has(Advantage advantage)
+    {
+        return difficulty == Difficulty.HARD_PLUS && advantages.contains(advantage);
+    }
 }

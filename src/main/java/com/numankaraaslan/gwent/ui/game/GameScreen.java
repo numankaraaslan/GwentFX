@@ -3,6 +3,7 @@ package com.numankaraaslan.gwent.ui.game;
 import com.numankaraaslan.gwent.ai.AiController;
 import com.numankaraaslan.gwent.engine.GameEngine;
 import com.numankaraaslan.gwent.engine.snapshot.GameSnapshot;
+import com.numankaraaslan.gwent.model.Advantage;
 import com.numankaraaslan.gwent.model.Difficulty;
 import com.numankaraaslan.gwent.model.GameSettings;
 import com.numankaraaslan.gwent.ui.Disposable;
@@ -74,7 +75,7 @@ public class GameScreen extends StackPane implements Disposable {
         Layouts.fix(this, BoardView.WIDTH, BoardView.HEIGHT);
         Difficulty difficulty = settings.difficulty() == null ? Difficulty.NORMAL : settings.difficulty();
         input = new TurnInput(this, overlays, effects);
-        board = new BoardView(input, "Difficulty: " + difficulty.displayName());
+        board = new BoardView(input, "Difficulty: " + difficulty.displayName(), advantagesLine(settings));
         input.bind(board);
         prompts = new PromptOverlays(overlays, input);
         animator = new EventAnimator(this, board, effects, prompts);
@@ -93,6 +94,17 @@ public class GameScreen extends StackPane implements Disposable {
             engine = null;
             showError(e);
         }
+    }
+
+    /** The Hard+ advantages of this game for the top left, "Extra card · No redraws"; empty on the other difficulties. */
+    private static String advantagesLine(GameSettings settings) {
+        List<String> names = new ArrayList<>();
+        for (Advantage advantage : Advantage.values()) {
+            if (settings.has(advantage)) {
+                names.add(advantage.displayName());
+            }
+        }
+        return String.join(" · ", names);
     }
 
     @Override

@@ -271,6 +271,7 @@ public class RulesScreen extends StackPane {
         body.add(bullet(RulesText.OPTIONS_HAND));
         body.add(bullet(RulesText.OPTIONS_REDRAWS));
         body.add(bullet(RulesText.OPTIONS_DIFFICULTY));
+        body.add(bullet(RulesText.OPTIONS_HARD_PLUS));
         body.add(paragraph(RulesText.OPTIONS_2));
         return body;
     }

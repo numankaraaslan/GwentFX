@@ -272,6 +272,7 @@ When the AI gives up a round that doesn't decide the game:
 | Easy | `easyMove` replaces step 3 (below). It never redraws. |
 | Normal | Steps 1–3 as described above. |
 | Hard | Normal, plus Scorch caution with card counting (below). |
+| Hard+ | Exactly Hard. The advantages you pick for it (an extra card, a card each round, no redraws for you) change the rules, not the decisions: `GameEngine` applies them, see [RULES.md](RULES.md#hard). The AI simply plays the cards it gets. |
 
 **Easy** (`easyMove`):
 

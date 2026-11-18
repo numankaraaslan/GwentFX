@@ -61,6 +61,8 @@ public enum EventType {
     ROUND_ENDED,
     /** A faction perk fired (Nilfgaard tie win, Northern Realms draw, Monsters keep, Skellige return). player = whose perk; cardIds = affected cards. */
     FACTION_ABILITY,
+    /** A Hard+ advantage took effect: the extra card, a card when a round starts, or your redraws skipped. player = the computer; cardIds = the cards it drew (empty for the redraws). */
+    ADVANTAGE,
     /** All cards left the battlefield at the end of a round. */
     BOARD_CLEARED,
     /** Game over. player = winner or GameState.DRAW. */

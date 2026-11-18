@@ -66,6 +66,12 @@
     -fx-text-fill: -gw-text;
 }
 
+/* Hard+: the computer's advantages, under the difficulty */
+.gm-round-detail {
+    -fx-font-size: 17px;
+    -fx-text-fill: -gw-text-dim;
+}
+
 /* ---------------------------------------------------------------- rows */
 
 .gm-row-view {

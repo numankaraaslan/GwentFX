@@ -106,6 +106,7 @@ final class RulesText {
     static final String OPTIONS_HAND = "**Starting hand**: how many cards are dealt at the start — **10** in the original game, up to 15 here. More cards mean longer rounds and bigger combos.";
     static final String OPTIONS_REDRAWS = "**Redraws**: how many cards you may swap after the deal — **2** in the original game, 0 to 6 here.";
     static final String OPTIONS_DIFFICULTY = "**Difficulty**: how well the computer plays — Easy, Normal or Hard.";
+    static final String OPTIONS_HARD_PLUS = "**Hard+**: the computer plays like Hard, and you choose advantages for it — an **extra card** at the start, a **card each round** when rounds 2 and 3 start, and **no redraws** for you. Always open in Free Play; in Collector Mode it opens once your collection is complete, and its wins unlock nothing.";
     static final String OPTIONS_2 = "You set all of this when you start **Free Play** or **Collector Mode** from the main menu. The setup screen remembers your choices until you quit.";
 
     // ------------------------------------------------------------------ controls

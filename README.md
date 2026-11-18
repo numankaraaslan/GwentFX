@@ -107,7 +107,7 @@ Both are started from the main menu.
   difficulty buttons show how many cards each difficulty can still unlock, and
   **My Collection** shows the cards you own. The win that completes your collection, on whichever difficulty, is
   celebrated with fireworks, and from then on a **Collection Complete** button on the Collector Mode screen shows them
-  again. [RULES.md](RULES.md#collector-mode) has the details.
+  again, and the **Hard+** difficulty opens. [RULES.md](RULES.md#collector-mode) has the details.
 
   Your collection is saved in `.gwentfx/collection.txt` in your home folder, one card id per line. **Reset progress**
   in My Collection, or deleting that file, starts over. If the file is missing it is created, and lines that aren't
@@ -120,7 +120,9 @@ On the setup screen of either mode you choose your faction and leader (or a rand
 - the starting hand: 10–15 cards (default 10, as in the original);
 - the number of redraws: 0–6 (default 2, as in the original);
 - the opponent's faction and leader (default random);
-- the difficulty: Easy, Normal or Hard (default Normal).
+- the difficulty: Easy, Normal, Hard or Hard+ (default Normal). Hard+ plays like Hard, and you choose advantages for
+  the computer: an extra card at the start, a card when rounds 2 and 3 start, and no redraws for you. It is always
+  available in Free Play, and in Collector Mode once every card is owned. [RULES.md](RULES.md#hard) has the details.
 
 ## Not included
 

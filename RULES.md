@@ -116,3 +116,19 @@ unlocks one more card from the tier of the difficulty you beat:
 - Biting Frost, Impenetrable Fog and Torrential Rain are starter cards so that every leader ability works from the
   first game. Two passive leaders do nothing until their cards are won: Eredin Bréacc Glas: The Treacherous needs
   spies, and Emhyr var Emreis: Invader of the North needs Medics.
+
+## Hard+
+
+Hard+ isn't in the original game either. The computer plays exactly as on Hard, and on the setup screen you can give
+it advantages, each with its own checkbox:
+
+- **Extra card**: the computer is dealt one card more than the starting hand, before the redraws. It adds to Francesca
+  Findabair: Daisy of the Valley, so a Daisy computer starts with two extra cards.
+- **Card each round**: the computer draws a card from its deck when rounds 2 and 3 start, after the Northern Realms
+  card for winning a round. Round 1 isn't included: that's what Extra card is for.
+- **No redraws**: you can't redraw. The computer still redraws as usual. With the redraws set to 0, this changes
+  nothing.
+
+A message in the middle of the board and a line in the log show each advantage when it happens. With nothing
+checked, Hard+ is the same as Hard. It is always available in Free Play; in Collector Mode it opens once every card is
+owned, and its wins unlock nothing.

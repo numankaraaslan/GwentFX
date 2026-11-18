@@ -151,6 +151,7 @@ final class EventAnimator implements EventPlayer {
             case PLAYER_PASSED -> playerPassed(ctx);
             case ROUND_ENDED -> roundEnded(ctx);
             case FACTION_ABILITY -> factionAbility(ctx);
+            case ADVANTAGE -> advantage(ctx);
             case BOARD_CLEARED -> boardCleared(ctx);
             case GAME_ENDED -> gameEnded(ctx);
             case MESSAGE -> message(ctx, 600);
@@ -744,6 +745,22 @@ final class EventAnimator implements EventPlayer {
         effects.toast(ctx.event.text(), "gm-toast-faction");
         strengthCues(batch, 400);
         batch.add(Animations.pause(600));
+        batch.play(ctx.done);
+    }
+
+    /**
+     * A Hard+ advantage of the computer: the card it drew flies to its hand, its panel glows red, and a warning message
+     * in the middle says what happened.
+     */
+    private void advantage(Ctx ctx) {
+        render(ctx.snapshot);
+        FxBatch batch = effects.batch();
+        if (!ctx.event.cardIds().isEmpty()) {
+            backsToHand(batch, 1, Math.min(ctx.event.cardIds().size(), 6));
+        }
+        effects.halo(batch, board.panel(1), RED, 0, 900);
+        effects.toast(ctx.event.text(), "gm-toast-warning");
+        batch.add(Animations.pause(700));
         batch.play(ctx.done);
     }
 

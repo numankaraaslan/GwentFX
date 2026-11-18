@@ -66,7 +66,11 @@ final class BoardView extends Pane {
     private final Button passButton;
     private GameSnapshot snapshot;
 
-    BoardView(BoardInput input, String subtitle) {
+    /**
+     * @param subtitle the line under the round, "Difficulty: Hard"
+     * @param detail   a smaller line under it, the Hard+ advantages of this game; empty for none
+     */
+    BoardView(BoardInput input, String subtitle, String detail) {
         getStyleClass().add("gm-board-view");
         Layouts.fix(this, WIDTH, HEIGHT);
         getChildren().add(Layouts.place(styled(new Region(), "gm-side-column"), 0, 0, CENTER_X, HEIGHT));
@@ -95,6 +99,10 @@ final class BoardView extends Pane {
         getChildren().add(Layouts.place(roundLabel, LEFT_X + 6, 18, LEFT_W - 12, 44));
         Label subtitleLabel = Layouts.label(subtitle, "gm-round-subtitle");
         getChildren().add(Layouts.place(subtitleLabel, LEFT_X + 6, 62, LEFT_W - 12, 30));
+        if (!detail.isEmpty()) {
+            Label detailLabel = Layouts.label(detail, "gm-round-detail");
+            getChildren().add(Layouts.place(detailLabel, LEFT_X + 6, 89, LEFT_W - 12, 21));
+        }
         panels[1] = Layouts.place(new PlayerPanel(1, input), LEFT_X, 112, PlayerPanel.WIDTH, PlayerPanel.HEIGHT);
         weather = Layouts.place(new WeatherZone(input), LEFT_X, DIVIDER_Y + DIVIDER_H / 2 - WeatherZone.HEIGHT / 2, WeatherZone.WIDTH, WeatherZone.HEIGHT);
         panels[0] = Layouts.place(new PlayerPanel(0, input), LEFT_X, 532, PlayerPanel.WIDTH, PlayerPanel.HEIGHT);

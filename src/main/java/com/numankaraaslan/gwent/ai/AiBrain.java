@@ -79,9 +79,10 @@ final class AiBrain
     /** Round in which the AI already gave up: no multi-card chase in it any more, even if the opponent passes. */
     private int concededRound = -1;
 
+    /** Hard+ plays like Hard: its advantages change the rules of the game (the engine applies them), not the decisions. */
     AiBrain(Difficulty difficulty)
     {
-        this.difficulty = difficulty;
+        this.difficulty = difficulty == Difficulty.HARD_PLUS ? Difficulty.HARD : difficulty;
     }
 
     // ================================================================== turn decision
