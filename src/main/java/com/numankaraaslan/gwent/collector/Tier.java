@@ -65,12 +65,13 @@ public enum Tier {
         return EASY;
     }
 
-    /** The tier a win at this difficulty unlocks a card from. */
+    /** The tier a win at this difficulty unlocks a card from. Hard+ only opens once every card is owned, so it counts as Hard. */
     public static Tier rewardedBy(Difficulty difficulty) {
         switch (difficulty) {
             case EASY:
                 return EASY;
             case HARD:
+            case HARD_PLUS:
                 return HARD;
             default:
                 return NORMAL;

@@ -52,6 +52,11 @@ public final class FreePlayMode implements GameMode {
     }
 
     @Override
+    public boolean hardPlusUnlocked() {
+        return true;
+    }
+
+    @Override
     public CardPool pool() {
         return pool;
     }

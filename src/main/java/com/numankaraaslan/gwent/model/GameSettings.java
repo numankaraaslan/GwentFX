@@ -1,5 +1,7 @@
 package com.numankaraaslan.gwent.model;
 
+import java.util.Set;
+
 /**
  * Everything chosen on the setup screen of Free Play or Collector Mode. Which cards the decks are built from is not a
  * choice: the game mode decides it.
@@ -11,16 +13,23 @@ package com.numankaraaslan.gwent.model;
  * @param handSize      cards dealt at the start of the game (original: 10)
  * @param redraws       cards that may be swapped right after the deal (original: 2)
  * @param difficulty    computer opponent strength
+ * @param advantages    the advantages picked for the computer; they only count on Hard+, but are kept for the next visit
+ *                      of the setup screen whatever the difficulty
  */
-public record GameSettings(Faction playerFaction, LeaderDef playerLeader, Faction aiFaction, LeaderDef aiLeader, int handSize, int redraws, Difficulty difficulty)
+public record GameSettings(Faction playerFaction, LeaderDef playerLeader, Faction aiFaction, LeaderDef aiLeader, int handSize, int redraws, Difficulty difficulty, Set<Advantage> advantages)
 {
 
     public static final int DEFAULT_HAND_SIZE = 10;
     public static final int DEFAULT_REDRAWS = 2;
 
-    /** Original-rules defaults: random everything, 10 cards, 2 redraws. */
+    public GameSettings
+    {
+        advantages = Set.copyOf(advantages);
+    }
+
+    /** Original-rules defaults: random everything, 10 cards, 2 redraws; Hard+ starts with the extra card picked. */
     public static GameSettings defaults(Faction playerFaction)
     {
-        return new GameSettings(playerFaction, null, null, null, DEFAULT_HAND_SIZE, DEFAULT_REDRAWS, Difficulty.NORMAL);
+        return new GameSettings(playerFaction, null, null, null, DEFAULT_HAND_SIZE, DEFAULT_REDRAWS, Difficulty.NORMAL, Set.of(Advantage.EXTRA_CARD));
     }
 }

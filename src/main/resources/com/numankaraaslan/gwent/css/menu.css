@@ -498,6 +498,59 @@
     -fx-text-fill: -gw-text;
 }
 
+/* your leader's details, then the computer's leader under them */
+.ng-details-column {
+    -fx-spacing: 10;
+}
+
+.ng-opponent-heading {
+    -fx-padding: 10 0 0 0;
+}
+
+/* ---------------------------------------------------------------- hard+ advantages (under the difficulty) */
+
+.ng-advantages {
+    -fx-spacing: 24;
+    -fx-alignment: center-left;
+}
+
+/* the gap between the box and the name is the label padding */
+.ng-check {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -gw-gold;
+    -fx-label-padding: 0 0 0 10;
+    -fx-cursor: hand;
+}
+
+.ng-check > .box {
+    -fx-background-color: linear-gradient(to bottom, #3b2b1c, #21170f);
+    -fx-background-insets: 0;
+    -fx-background-radius: 4;
+    -fx-border-color: -gw-gold-dark;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 4;
+    -fx-padding: 3;
+}
+
+.ng-check > .box > .mark {
+    -fx-padding: 8;
+}
+
+.ng-check:hover > .box {
+    -fx-border-color: -gw-gold;
+}
+
+.ng-check:selected > .box {
+    -fx-background-color: linear-gradient(to bottom, #d0a955, #8c6b2d);
+    -fx-border-color: -gw-gold;
+}
+
+.ng-check:selected > .box > .mark {
+    -fx-background-color: #1b130b;
+    -fx-background-insets: 0;
+}
+
 /* ---------------------------------------------------------------- bottom bar */
 
 .ng-bar {
@@ -530,10 +583,15 @@
     -fx-effect: dropshadow(gaussian, rgba(243, 214, 144, 0.5), 14, 0.25, 0, 0);
 }
 
-/* difficulty buttons: Collector Mode adds a second line under the name, "47 cards left" */
+/* difficulty buttons: Collector Mode adds a second line under the name, "47 cards left" ("locked" or "for fun" on Hard+) */
 .ng-difficulty {
     -fx-content-display: bottom;
     -fx-graphic-text-gap: 1;
+}
+
+/* Hard+ in Collector Mode until every card is owned */
+.ng-difficulty:disabled {
+    -fx-opacity: 0.45;
 }
 
 .ng-cards-left {

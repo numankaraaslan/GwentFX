@@ -1,5 +1,6 @@
 package com.numankaraaslan.gwent.ui.menu;
 
+import com.numankaraaslan.gwent.model.Advantage;
 import com.numankaraaslan.gwent.model.CardDatabase;
 import com.numankaraaslan.gwent.model.Difficulty;
 import com.numankaraaslan.gwent.model.Faction;
@@ -14,9 +15,14 @@ import com.numankaraaslan.gwent.ui.game.CollectionCompletePopup;
 import com.numankaraaslan.gwent.ui.mode.GameMode;
 import com.numankaraaslan.gwent.ui.mode.SetupLink;
 import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.OptionalInt;
+import java.util.Set;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -24,6 +30,7 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
@@ -46,8 +53,10 @@ import javafx.util.Callback;
  * texts about the decks and the numbers on the difficulty buttons, and starts the game. "Your faction" and "Your leader" are two equally wide drop-down lists, each with a big
  * card tile under it (the faction's card back with its perk, the leader card with how its ability is used). Below them
  * the computer opponent with its difficulty and the rule options (starting hand, redraws). The right column explains the
- * leader: the chosen leader's ability, the one hovered in the leader list, or every possible leader for "Random"; it
- * scrolls when the text is long. "Start game" hands the resulting {@link GameSettings} to the navigator. The choices are
+ * leaders: the chosen leader's ability, the one hovered in the leader list, or every possible leader for "Random", and
+ * under it the computer's leader with its faction perk; it scrolls when the text is long. Picking Hard+ shows a row of
+ * checkboxes under the difficulty, the advantages the computer gets, with what the checked ones do written under them.
+ * "Start game" hands the resulting {@link GameSettings} to the navigator. The choices are
  * remembered for the rest of the session (both modes share them), so the setup screens reopen with them. Once every card
  * of Collector Mode is owned, a "Collection Complete" button in the header opens the celebration popup again.
  */
@@ -84,13 +93,17 @@ public class NewGameScreen extends StackPane {
     private final Label leaderKind = MenuUi.wrapping("", "ng-pick-caption");
     private final Label leaderHint = MenuUi.wrapping("", "ng-pick-detail");
     private final LeaderDetails details = new LeaderDetails();
-    private final ScrollPane detailsScroll = MenuUi.scrollPane(details);
+    private final LeaderDetails opponentDetails = new LeaderDetails();
+    private final ScrollPane detailsScroll = MenuUi.scrollPane(detailsColumn(details, opponentDetails));
     private final ComboBox<Choice<Faction>> aiFactionBox = new ComboBox<>();
     private final ComboBox<Choice<LeaderDef>> aiLeaderBox = new ComboBox<>();
-    private final Label aiInfo = MenuUi.wrapping("", "ng-note");
+    /** Under the difficulty while Hard+ is picked: what each checked advantage does, one line each. */
+    private final Label advantageNotes = MenuUi.wrapping("", "ng-note");
     private final OptionGroup<Integer> handSizes = new OptionGroup<>("menu-options", "menu-option");
     private final OptionGroup<Integer> redraws = new OptionGroup<>("menu-options", "menu-option");
     private final OptionGroup<Difficulty> difficulties = new OptionGroup<>("menu-options", "menu-option");
+    private final Map<Advantage, CheckBox> advantageBoxes = new EnumMap<>(Advantage.class);
+    private final HBox advantageRow = new HBox();
     private final Label summary = MenuUi.wrapping("", "ng-summary");
     private Button back;
     private Button start;
@@ -234,9 +247,27 @@ public class NewGameScreen extends StackPane {
         grid.addRow(0, fieldLabel("Faction"), aiFactionBox);
         grid.addRow(1, fieldLabel("Leader"), aiLeaderBox);
         grid.addRow(2, fieldLabel("Difficulty"), difficulties);
+        grid.add(buildAdvantageRow(), 0, 3, 2, 1);
         GridPane.setHgrow(aiFactionBox, Priority.ALWAYS);
         GridPane.setHgrow(aiLeaderBox, Priority.ALWAYS);
-        return settingsPanel("Opponent", grid, aiInfo);
+        return settingsPanel("Opponent", grid, advantageNotes);
+    }
+
+    /**
+     * Under the difficulty, only while Hard+ is picked: a checkbox for each advantage the computer gets. The row is as wide
+     * as the panel; under the difficulty buttons alone it wouldn't fit. What the checked ones do is written under it.
+     */
+    private HBox buildAdvantageRow() {
+        for (Advantage advantage : Advantage.values()) {
+            CheckBox box = new CheckBox(advantage.displayName());
+            box.getStyleClass().add("ng-check");
+            box.setMinWidth(Region.USE_PREF_SIZE);
+            box.selectedProperty().addListener(new AdvantageListener());
+            advantageBoxes.put(advantage, box);
+            advantageRow.getChildren().add(box);
+        }
+        advantageRow.getStyleClass().add("ng-advantages");
+        return advantageRow;
     }
 
     private VBox buildRulesPanel() {
@@ -272,6 +303,14 @@ public class NewGameScreen extends StackPane {
         return bar;
     }
 
+    /** What the right column scrolls: your leader's details, and the computer's leader with its faction perk under them. */
+    private static VBox detailsColumn(LeaderDetails mine, LeaderDetails opponent) {
+        Label heading = MenuUi.label("Opponent's leader", "gw-subheading", "ng-opponent-heading");
+        VBox column = new VBox(mine, heading, opponent);
+        column.getStyleClass().add("ng-details-column");
+        return column;
+    }
+
     /** Right column: the leader explanations, scrolling when they are longer than the column. */
     private VBox buildSideColumn() {
         detailsScroll.setFocusTraversable(false);
@@ -289,14 +328,34 @@ public class NewGameScreen extends StackPane {
             redraws.add(count, String.valueOf(count), null);
         }
         for (Difficulty difficulty : Difficulty.values()) {
-            OptionalInt left = mode.cardsLeft(difficulty);
-            ToggleButton button = difficulties.add(difficulty, difficulty.displayName(), left.isPresent() ? cardsLeftLine(left.getAsInt()) : null);
+            ToggleButton button = difficulties.add(difficulty, difficulty.displayName(), difficultyLine(difficulty));
             button.getStyleClass().add("ng-difficulty");
+            if (difficulty == Difficulty.HARD_PLUS) {
+                button.setDisable(!mode.hardPlusUnlocked());
+            }
         }
         OptionChanged listener = new OptionChanged();
         handSizes.setOnChange(listener);
         redraws.setOnChange(listener);
         difficulties.setOnChange(listener);
+    }
+
+    /**
+     * The second line of a difficulty button, or null for none. Collector Mode shows how many cards wins there can still
+     * unlock. Hard+ unlocks nothing, so in Collector Mode its button says "locked" until the collection is complete and
+     * "for fun" after; it needs a second line there to be as tall as the others. Free Play has no second lines.
+     */
+    private Node difficultyLine(Difficulty difficulty) {
+        if (difficulty == Difficulty.HARD_PLUS) {
+            if (mode.cardsLeft(Difficulty.HARD).isEmpty()) {
+                return null;
+            }
+            HBox line = new HBox(MenuUi.label(mode.hardPlusUnlocked() ? "for fun" : "locked", "ng-cards-left-text"));
+            line.getStyleClass().add("ng-cards-left");
+            return line;
+        }
+        OptionalInt left = mode.cardsLeft(difficulty);
+        return left.isPresent() ? cardsLeftLine(left.getAsInt()) : null;
     }
 
     /** The second line of a difficulty button: how many cards wins there can still unlock, "47 cards left" (dimmed at 0). */
@@ -456,15 +515,33 @@ public class NewGameScreen extends StackPane {
         if (!redraws.select(settings.redraws())) {
             redraws.select(GameSettings.DEFAULT_REDRAWS);
         }
-        if (!difficulties.select(settings.difficulty())) {
+        Difficulty difficulty = settings.difficulty();
+        if (difficulty == Difficulty.HARD_PLUS && !mode.hardPlusUnlocked()) {
+            difficulty = Difficulty.HARD;
+        }
+        if (!difficulties.select(difficulty)) {
             difficulties.select(Difficulty.NORMAL);
+        }
+        for (Map.Entry<Advantage, CheckBox> entry : advantageBoxes.entrySet()) {
+            entry.getValue().setSelected(settings.advantages().contains(entry.getKey()));
         }
         restoring = false;
         refresh();
     }
 
     private GameSettings currentSettings() {
-        return new GameSettings(playerFaction, playerLeader, aiFaction(), aiLeader(), handSizes.getValue(), redraws.getValue(), difficulties.getValue());
+        return new GameSettings(playerFaction, playerLeader, aiFaction(), aiLeader(), handSizes.getValue(), redraws.getValue(), difficulties.getValue(), pickedAdvantages());
+    }
+
+    /** The checked advantages, in the order of the checkboxes. */
+    private Set<Advantage> pickedAdvantages() {
+        Set<Advantage> picked = EnumSet.noneOf(Advantage.class);
+        for (Map.Entry<Advantage, CheckBox> entry : advantageBoxes.entrySet()) {
+            if (entry.getValue().isSelected()) {
+                picked.add(entry.getKey());
+            }
+        }
+        return picked;
     }
 
     /** Updates the texts that depend on several choices and remembers the choices for this session. */
@@ -472,20 +549,24 @@ public class NewGameScreen extends StackPane {
         if (restoring) {
             return;
         }
-        Faction faction = aiFaction();
-        LeaderDef leader = aiLeader();
-        if (faction == null) {
-            aiInfo.setText("The computer plays a random faction with a random leader.");
-        } else if (leader == null) {
-            aiInfo.setText(faction.shortName() + " perk: " + faction.abilityDescription() + " The leader is picked at random.");
-        } else {
-            aiInfo.setText(faction.shortName() + " perk: " + faction.abilityDescription() + "\n" + MenuUi.leaderTitle(leader) + ": " + leader.description());
+        opponentDetails.showOpponent(aiFaction(), aiLeader());
+        boolean hardPlus = difficulties.getValue() == Difficulty.HARD_PLUS;
+        advantageRow.setVisible(hardPlus);
+        advantageRow.setManaged(hardPlus);
+        List<String> notes = new ArrayList<>();
+        if (hardPlus) {
+            for (Advantage advantage : pickedAdvantages()) {
+                notes.add(advantage.description());
+            }
         }
+        advantageNotes.setText(String.join("\n", notes));
+        advantageNotes.setVisible(!notes.isEmpty());
+        advantageNotes.setManaged(!notes.isEmpty());
         summary.setText(describe());
         remembered = currentSettings();
     }
 
-    /** One-line summary of all choices, shown next to the Start button. */
+    /** Summary of all choices, shown next to the Start button; it wraps onto a second line when it is too long. */
     private String describe() {
         String you = playerFaction.displayName() + ", " + (playerLeader == null ? "random leader" : MenuUi.leaderTitle(playerLeader));
         Faction faction = aiFaction();
@@ -493,7 +574,25 @@ public class NewGameScreen extends StackPane {
         String opponent = faction == null ? "random" : faction.displayName() + ", " + (leader == null ? "random leader" : MenuUi.leaderTitle(leader));
         int redrawCount = redraws.getValue();
         String rules = handSizes.getValue() + " cards, " + redrawCount + (redrawCount == 1 ? " redraw" : " redraws");
-        return "You: " + you + SEPARATOR + "Opponent: " + opponent + SEPARATOR + rules + SEPARATOR + difficulties.getValue().displayName();
+        if (redrawCount > 0 && difficulties.getValue() == Difficulty.HARD_PLUS && advantageBoxes.get(Advantage.NO_REDRAWS).isSelected()) {
+            rules += " (none for you)";
+        }
+        return "You: " + you + SEPARATOR + "Opponent: " + opponent + SEPARATOR + rules + SEPARATOR + describeDifficulty();
+    }
+
+    /** "Hard", or "Hard+: extra card, card each round" with the checked advantages (No redraws is told with the redraws). */
+    private String describeDifficulty() {
+        Difficulty difficulty = difficulties.getValue();
+        if (difficulty != Difficulty.HARD_PLUS) {
+            return difficulty.displayName();
+        }
+        List<String> names = new ArrayList<>();
+        for (Advantage advantage : pickedAdvantages()) {
+            if (advantage != Advantage.NO_REDRAWS) {
+                names.add(advantage.displayName().toLowerCase(Locale.ROOT));
+            }
+        }
+        return names.isEmpty() ? difficulty.displayName() : difficulty.displayName() + ": " + String.join(", ", names);
     }
 
     // ------------------------------------------------------------------ list cells
@@ -656,6 +755,13 @@ public class NewGameScreen extends StackPane {
     private final class OptionChanged implements Runnable {
         @Override
         public void run() {
+            refresh();
+        }
+    }
+
+    private final class AdvantageListener implements ChangeListener<Boolean> {
+        @Override
+        public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
             refresh();
         }
     }

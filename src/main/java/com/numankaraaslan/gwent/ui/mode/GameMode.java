@@ -39,6 +39,9 @@ public interface GameMode {
      */
     boolean collectionComplete();
 
+    /** Whether Hard+ can be picked: always in Free Play, in Collector Mode once every card is owned. */
+    boolean hardPlusUnlocked();
+
     /** The cards both decks are built from, as of now. Asked every time a game starts. */
     CardPool pool();
 

@@ -76,6 +76,12 @@ public final class CollectorMode implements GameMode {
         return collection.complete();
     }
 
+    /** Hard+ wins unlock nothing, so Hard+ waits until there is nothing left to unlock. */
+    @Override
+    public boolean hardPlusUnlocked() {
+        return collection.complete();
+    }
+
     @Override
     public CardPool pool() {
         return collection.pool();
