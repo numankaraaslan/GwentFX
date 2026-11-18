@@ -108,8 +108,12 @@ jobs:
           convert "$ICON_SRC" -resize 512x512 gwentfx-icon.png
           echo "ICON=gwentfx-icon.png" >> "$GITHUB_ENV"
 
+      # On the Linux runner JAVA_HOME is a symlink, and jpackage would copy only the link: the game then looks for
+      # Java at the runner's path and can't start anywhere else. pwd -P gives the real folder, on every OS.
       - name: Build app-image (portable, no installer)
         run: |
+          RUNTIME="$(cd "$JAVA_HOME" && pwd -P)"
+          echo "Bundling the Java runtime from $RUNTIME (JAVA_HOME is $JAVA_HOME)"
           jpackage \
             --type app-image \
             --name GwentFX \
@@ -120,7 +124,7 @@ jobs:
             --main-jar GwentFX.jar \
             --main-class com.numankaraaslan.gwent.Main \
             --icon "$ICON" \
-            --runtime-image "$JAVA_HOME" \
+            --runtime-image "$RUNTIME" \
             --java-options "--enable-native-access=ALL-UNNAMED" \
             --dest app
 
